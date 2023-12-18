@@ -1,5 +1,5 @@
 {
-  "name": "cosmicconquest",
+  "name": "gameserver",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -7,5 +7,9 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.4",
+    "zod": "^3.22.4"
   }
 }
