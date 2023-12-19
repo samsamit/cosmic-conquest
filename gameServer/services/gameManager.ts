@@ -5,6 +5,7 @@ import {
 } from "../domain/gameInstance/gameInstance.model";
 import { BotSocketData } from "../networking/bot.network";
 import { BotSocket } from "../types";
+import { BotMessage } from "../communication/bot/bot.communication";
 
 export class GameManager {
   private games = new Map<string, GameInstance>();
@@ -42,5 +43,22 @@ export class GameManager {
       }
     }
     this.connectedBots.delete(botToken);
+  }
+
+  public handleBotMessage(botData: BotSocketData, message: BotMessage) {
+    const { gameId } = botData;
+    if (!gameId) return;
+    const gameInstance = this.games.get(gameId);
+    if (!gameInstance) {
+      return;
+    }
+    switch (message.event) {
+      case "action":
+        gameInstance.actionQueue.push(message);
+        this.games.set(gameId, gameInstance);
+        break;
+      default:
+        break;
+    }
   }
 }

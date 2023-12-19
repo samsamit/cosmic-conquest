@@ -7,6 +7,7 @@ export interface BotSocketData {
   connectionToken: string;
   userId: string;
   botToken: string;
+  gameId: string | null;
 }
 
 export const handleBotRoute = (req: Request, server: Server) => {
@@ -21,6 +22,7 @@ export const handleBotRoute = (req: Request, server: Server) => {
         connectionToken,
         userId: "userId", // TODO: get from connectionToken
         botToken,
+        gameId: null,
       } satisfies BotSocketData,
     });
     return upgraded
