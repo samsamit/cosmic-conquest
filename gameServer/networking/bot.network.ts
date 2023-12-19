@@ -1,18 +1,15 @@
 import { Server } from "bun";
-import GameManager from "../services/gameManager.service";
+import { GameManager } from "../services/gameManager";
 
 export interface BotSocketData {
   type: "bot";
   createdAt: number;
   connectionToken: string;
+  userId: string;
   botToken: string;
 }
 
-export const handleBotRoute = (
-  req: Request,
-  server: Server,
-  gameManager: GameManager
-) => {
+export const handleBotRoute = (req: Request, server: Server) => {
   try {
     const connectionToken = req.headers.get("connectionToken");
     const botToken = req.headers.get("botToken");
@@ -22,6 +19,7 @@ export const handleBotRoute = (
         type: "bot",
         createdAt: Date.now(),
         connectionToken,
+        userId: "userId", // TODO: get from connectionToken
         botToken,
       } satisfies BotSocketData,
     });
