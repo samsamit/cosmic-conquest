@@ -7,6 +7,7 @@ import {
 import { socketHandler } from "./networking/socketHandler";
 import { GameManager } from "./services/gameManager";
 import UserManager from "./services/userManager";
+import { handleApiRoutes } from "./networking/api.network";
 
 export type WebSocketData = BotSocketData | ClientSocketData;
 
@@ -15,17 +16,14 @@ const userManager = new UserManager();
 
 Bun.serve<WebSocketData>({
   async fetch(req, server) {
-    // handle websocket upgrade
     const url = new URL(req.url);
     switch (url.pathname) {
       case "/ws":
         return handleBotRoute(req, server);
       case "/client":
         return handleClientRoute(req, server);
-      case "/game":
-        return new Response("Game", { status: 200 });
       default:
-        return new Response("Not found", { status: 404 });
+        return handleApiRoutes(req, gameManager);
     }
   },
   websocket: socketHandler(gameManager, userManager),

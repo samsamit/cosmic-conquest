@@ -61,4 +61,13 @@ export class GameManager {
         break;
     }
   }
+
+  public updateGameStatus(gameId: string, gameStatus: GameInstance["state"]) {
+    const gameInstance = this.games.get(gameId);
+    if (!gameInstance) {
+      return;
+    }
+    gameInstance.state = gameStatus;
+    this.games.set(gameId, gameInstance);
+  }
 }
