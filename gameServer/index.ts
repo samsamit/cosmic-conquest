@@ -14,7 +14,8 @@ export type WebSocketData = BotSocketData | ClientSocketData;
 const gameManager = new GameManager();
 const userManager = new UserManager();
 
-Bun.serve<WebSocketData>({
+const server = Bun.serve<WebSocketData>({
+  port: 8080,
   async fetch(req, server) {
     const url = new URL(req.url);
     switch (url.pathname) {
@@ -28,3 +29,7 @@ Bun.serve<WebSocketData>({
   },
   websocket: socketHandler(gameManager, userManager),
 });
+
+gameManager.run();
+
+console.log(`Listening on http://localhost:${server.port} ...`);

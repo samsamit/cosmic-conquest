@@ -49,9 +49,10 @@ export const socketHandler = (
     }
     if (isBotSocket(ws)) {
       const botToken = ws.data.botToken;
+      console.log("bot connected with token", botToken);
       gameManager.addConnectedBot(botToken, ws);
       userManager.handleBotConnection(ws.data, true);
-      console.log("bot connected with token", botToken);
+
       return;
     }
   },
