@@ -6,7 +6,11 @@ import { getReqData, matchPathAndMethod } from "../contollerUtils";
 const GameInitBodySchema = z.object({
   gameId: z.string(),
   participatingBots: z.array(
-    z.object({ botId: z.string(), teamName: z.string() })
+    z.object({
+      botToken: z.string(),
+      teamName: z.string(),
+      teamColor: z.string(),
+    })
   ),
   gameSettings: z.object({
     mapWidth: z.number().int().positive().optional(),

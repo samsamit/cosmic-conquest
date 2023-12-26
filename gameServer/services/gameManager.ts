@@ -1,12 +1,14 @@
 import { ServerWebSocket } from "bun";
 import {
   GameInstance,
+  Participant,
   createGameInstance,
 } from "../domain/gameInstance/gameInstance.model";
 import { BotSocketData } from "../networking/bot.network";
 import { BotSocket } from "../types";
 import { BotMessage } from "../communication/bot/bot.communication";
 import { GameSettings } from "../domain/gameInstance/gameSettings.model";
+import { GameInitBody } from "../controllers/game/game.controller";
 
 export class GameManager {
   private games = new Map<string, GameInstance>();
@@ -15,21 +17,14 @@ export class GameManager {
   public createGame(
     gameId: string,
     settings: GameSettings,
-    participatingBots: { botId: string; teamName: string }[]
+    participatingBots: GameInitBody["participatingBots"]
   ) {
-    const teams: GameInstance["teams"] = participatingBots.reduce(
-      (acc, { botId, teamName }) => {
-        const team = acc.find((team) => team.teamName === teamName);
-        if (team) {
-          team.botIds.push(botId);
-        } else {
-          acc.push({ teamName, botIds: [botId] });
-        }
-        return acc;
-      },
-      [] as GameInstance["teams"]
-    );
-    const gameInstance = createGameInstance(gameId, settings, teams);
+    const participants = participatingBots.map<Participant>((bot) => ({
+      teamName: bot.teamName,
+      botToken: bot.botToken,
+      teamColor: bot.teamColor,
+    }));
+    const gameInstance = createGameInstance(gameId, settings, participants);
     for (const botToken of gameInstance.getParticipatingBotIds()) {
       const botSocket = this.connectedBots.get(botToken);
       if (botSocket) {
@@ -79,7 +74,10 @@ export class GameManager {
     }
     switch (message.event) {
       case "action":
-        gameInstance.actionQueue.push(message);
+        gameInstance.actionQueue.push({
+          botToken: botData.botToken,
+          action: message.action,
+        });
         this.games.set(gameId, gameInstance);
         console.log("action from bot: ", botData.botToken, message);
         break;

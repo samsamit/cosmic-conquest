@@ -49,6 +49,8 @@ export const createShip = (data: ShipData): Ship => ({
       heat: this.heat,
       vision: this.vision,
       hitboxRadius: this.hitboxRadius,
+      team: this.team,
+      teamColor: this.teamColor,
     };
   },
 });

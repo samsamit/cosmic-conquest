@@ -2,15 +2,20 @@ import { BotAction } from "../../communication/bot/bot.communication";
 import { BotSocket } from "../../types";
 import { GameSettings } from "./gameSettings.model";
 
-interface GameTeam {
+export interface Participant {
   teamName: string;
-  botIds: string[];
+  teamColor: string;
+  botToken: string;
+}
+export interface BotGameAction {
+  botToken: string;
+  action: BotAction;
 }
 interface GameInstanceData {
   gameId: string;
   state: "ongoing" | "not-started" | "finished" | "error" | "paused";
-  actionQueue: BotAction[];
-  teams: GameTeam[];
+  actionQueue: BotGameAction[];
+  participants: Participant[];
   sockets: Map<string, BotSocket>;
   loopInterval: NodeJS.Timeout | null;
   gameSettings: GameSettings;
@@ -24,19 +29,19 @@ export interface GameInstance extends GameInstanceData {
 export const createGameInstance = (
   gameId: string,
   settings: GameSettings,
-  teams: GameTeam[]
+  participants: Participant[]
 ): GameInstance => ({
   gameId,
   state: "not-started",
   actionQueue: [],
-  teams,
+  participants,
   sockets: new Map(),
   loopInterval: null,
   gameSettings: settings,
   hasBot(botId: string) {
-    return this.teams.some((team) => team.botIds.includes(botId));
+    return this.participants.some((bot) => bot.botToken === botId);
   },
   getParticipatingBotIds() {
-    return this.teams.flatMap((team) => team.botIds);
+    return this.participants.map((bot) => bot.botToken);
   },
 });

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   getForwardPosition,
   getOppositeDirection,
+  getStepsBetweenPositions,
   isTurnAllowed,
 } from "./movement.logic";
 
@@ -25,5 +26,16 @@ describe("movement", () => {
   test("getOppositeDirection", () => {
     expect(getOppositeDirection("N")).toEqual("S");
     expect(getOppositeDirection("SW")).toEqual("NE");
+  });
+  test("getStepsBetweenPositions", () => {
+    const start = { x: 0, y: 0 };
+    const end = { x: 0, y: 3 };
+    const expected = [
+      { x: 0, y: 1 },
+      { x: 0, y: 2 },
+      { x: 0, y: 3 },
+    ];
+    const actual = getStepsBetweenPositions(start, end);
+    expect(actual).toEqual(expected);
   });
 });

@@ -52,3 +52,19 @@ export const getOppositeDirection = (direction: Direction): Direction => {
   const oppositeIndex = (index + 4) % compassList.length;
   return compassList[oppositeIndex];
 };
+
+export const getStepsBetweenPositions = (
+  start: Position,
+  end: Position
+): Position[] => {
+  const steps: Position[] = [];
+  const diffX = end.x - start.x;
+  const diffY = end.y - start.y;
+  const diff = Math.max(Math.abs(diffX), Math.abs(diffY));
+  for (let i = 1; i < diff + 1; i++) {
+    const x = Math.round(start.x + (diffX / diff) * i);
+    const y = Math.round(start.y + (diffY / diff) * i);
+    steps.push({ x, y });
+  }
+  return steps;
+};

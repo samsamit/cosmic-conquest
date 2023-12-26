@@ -7,6 +7,7 @@ interface Projectile extends ProjectileData {
   move(distance: number): Projectile;
   getHitbox(): Position[];
   data(): ProjectileData;
+  damage(): number;
 }
 
 interface ProjectileConstructor {
@@ -43,6 +44,9 @@ export const createProjectile = ({
       }
     }
     return hitbox;
+  },
+  damage() {
+    return this.mass + this.speed;
   },
   data() {
     return {

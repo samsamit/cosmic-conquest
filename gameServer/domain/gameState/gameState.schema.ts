@@ -6,9 +6,10 @@ const GameSettingsSchema = z.object({
   mapWidth: z.number().int().positive(),
   mapHeight: z.number().int().positive(),
 });
-
+const EntitySchema = z.union([ShipDataSchema, ProjectileDataSchema]);
+export type Entity = z.infer<typeof EntitySchema>;
 export const GameStateDataSchema = z.object({
-  entities: z.array(z.union([ShipDataSchema, ProjectileDataSchema])),
+  entities: z.array(EntitySchema),
   mapSettings: GameSettingsSchema,
 });
 export type GameStateData = z.infer<typeof GameStateDataSchema>;
