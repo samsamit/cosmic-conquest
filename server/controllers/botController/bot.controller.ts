@@ -1,5 +1,5 @@
 import Elysia, { t } from "elysia";
-import { decorators } from "src/server.plugins";
+import { decorators } from "../../server.plugins";
 import { BotActionSchema } from "./bot.communication";
 
 export const botController = new Elysia()

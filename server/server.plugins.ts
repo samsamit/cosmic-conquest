@@ -1,6 +1,6 @@
 import GameManager from "@domain/gameManager";
 import Elysia from "elysia";
-import { ClientHandler } from "src/services/client.handler";
+import { ClientHandler } from "./services/client.handler";
 import { BotHandler } from "./services/bot.handler";
 
 export const decorators = (app: Elysia) =>

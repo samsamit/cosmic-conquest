@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { setGameStateSchema, startGameSchema } from "./game.schema";
 import { GameState } from "@domain/models/game/game.model";
-import { decorators } from "src/server.plugins";
+import { decorators } from "../../server.plugins";
 
 export const gameController = new Elysia()
   .use(decorators)

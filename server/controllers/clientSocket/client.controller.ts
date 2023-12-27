@@ -1,5 +1,5 @@
 import Elysia, { t } from "elysia";
-import { decorators } from "src/server.plugins";
+import { decorators } from "../../server.plugins";
 
 export const clientController = new Elysia()
   .use(decorators)
