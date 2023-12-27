@@ -9,11 +9,17 @@ export const gameController = new Elysia()
     app
       .post(
         "/create",
-        ({ gameManager, body, params: { gameId } }) =>
+        ({ gameManager, botHandler, body, params: { gameId } }) => {
           gameManager.createGame({
             id: gameId,
             participants: body.participants,
-          }),
+          });
+          botHandler.setGameId(
+            gameId,
+            body.participants.map((p) => p.botToken)
+          );
+          return new Response("Game created", { status: 200 });
+        },
         {
           body: startGameSchema,
         }

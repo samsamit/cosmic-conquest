@@ -35,6 +35,7 @@ export const createGame = (
       throw new Error("Bot already sent action");
     }
     this.actionQueue.push(action);
+    console.log("action added for bot", action);
     return this;
   },
 });

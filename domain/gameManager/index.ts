@@ -8,6 +8,7 @@ interface GameManager {
   set: (id: GameId, game: Game) => GameManager;
   delete: (id: GameId) => GameManager;
   addAction: (gameId: string, action: Action) => GameManager;
+  getBotsGameID: (botToken: string) => string | null;
 }
 
 const GameManager = () => {
@@ -43,6 +44,13 @@ const GameManager = () => {
         }
       }
       return this;
+    },
+    getBotsGameID(botToken) {
+      for (const [gameId, game] of this.games.entries()) {
+        if (game.participants.find((p) => p.botToken === botToken))
+          return gameId;
+      }
+      return null;
     },
   };
 

@@ -16,7 +16,13 @@ export const botController = new Elysia()
       try {
         const connectionToken = socket.data.headers["connection-token"];
         const botToken = socket.data.headers["bot-token"];
-        socket.data.botHandler.addBot(connectionToken, botToken, socket.raw);
+        const gameId = socket.data.gameManager.getBotsGameID(botToken);
+        socket.data.botHandler.addBot(
+          connectionToken,
+          botToken,
+          socket.raw,
+          gameId
+        );
         console.log("headers", socket.data.headers);
         console.log("bot connected");
         socket.send("connection_ok");
@@ -38,24 +44,41 @@ export const botController = new Elysia()
       console.log("bot disconnected");
     },
     message: (socket, action) => {
-      const connectionToken = socket.data.headers["connection-token"];
       const botToken = socket.data.headers["bot-token"];
-      switch (action.action) {
-        case "move":
-          socket.data.gameManager.addAction(connectionToken, {
-            botToken,
-            action: "move",
-            distance: action.distance,
-          });
-          break;
-        case "turn":
-          socket.data.gameManager.addAction(connectionToken, {
-            botToken,
-            action: "turn",
-            direction: action.direction,
-          });
-          break;
+      const gameId = socket.data.gameManager.getBotsGameID(botToken);
+      if (!gameId) {
+        socket.send("Bot not in game");
+        socket.close();
+        return;
       }
-      console.log("bot sent message", action);
+      try {
+        switch (action.action) {
+          case "move":
+            socket.data.gameManager.addAction(gameId, {
+              botToken,
+              action: "move",
+              distance: action.distance,
+            });
+            break;
+          case "turn":
+            socket.data.gameManager.addAction(gameId, {
+              botToken,
+              action: "turn",
+              direction: action.direction,
+            });
+            break;
+        }
+        console.log("bot sent message", action);
+        socket.send("action_ok");
+      } catch (e) {
+        if (e instanceof Error) {
+          console.log(e.message);
+          socket.send(e.message);
+        } else {
+          console.log(e);
+          socket.send("unknown error");
+        }
+        socket.close();
+      }
     },
   });

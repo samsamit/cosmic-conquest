@@ -1,9 +1,9 @@
-import { BotAction } from "controllers/botController/bot.communication";
 import { AppSocket } from "../types";
 
 interface BotConnection {
   botToken: string;
   socket: AppSocket;
+  gameId: string | null;
 }
 
 interface BotHandlerData {
@@ -14,24 +14,26 @@ interface BotHandler extends BotHandlerData {
   addBot: (
     userConnectionToken: string,
     botToken: string,
-    socket: AppSocket
+    socket: AppSocket,
+    gameId: string | null
   ) => BotHandler;
   removeBot: (userConnectionToken: string, botToken: string) => BotHandler;
   getBot: (
     userConnectionToken: string,
     botToken: string
   ) => BotConnection | undefined;
+  setGameId: (gameId: string, participatingBotIds: string[]) => BotHandler;
 }
 
 export const BotHandler = (): BotHandler => {
   const botHandler: BotHandler = {
     bots: new Map(),
-    addBot(userConnectionToken, botToken, socket) {
+    addBot(userConnectionToken, botToken, socket, gameId) {
       const connectionTokenBots = this.bots.get(userConnectionToken);
       if (!connectionTokenBots) {
         this.bots.set(
           userConnectionToken,
-          new Map([[botToken, { botToken, socket }]])
+          new Map([[botToken, { botToken, socket, gameId }]])
         );
 
         return this;
@@ -42,6 +44,7 @@ export const BotHandler = (): BotHandler => {
       const updatedBots = connectionTokenBots.set(botToken, {
         botToken,
         socket,
+        gameId,
       });
       this.bots = this.bots.set(userConnectionToken, updatedBots);
       return this;
@@ -52,6 +55,16 @@ export const BotHandler = (): BotHandler => {
     },
     getBot(userConnectionToken, botToken) {
       return this.bots.get(userConnectionToken)?.get(botToken);
+    },
+    setGameId(gameId, participatingBotIds) {
+      for (const [_, bots] of this.bots.entries()) {
+        for (const [botToken, bot] of bots.entries()) {
+          if (participatingBotIds.includes(botToken)) {
+            bot.gameId = gameId;
+          }
+        }
+      }
+      return this;
     },
   };
   return botHandler;
