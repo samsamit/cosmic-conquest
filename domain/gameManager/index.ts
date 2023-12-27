@@ -1,4 +1,4 @@
-import { Game, createGame } from "../models/game/game.model";
+import { Action, Game, createGame } from "../models/game/game.model";
 
 type GameId = string;
 interface GameManager {
@@ -7,6 +7,7 @@ interface GameManager {
   get: (id: GameId) => Game;
   set: (id: GameId, game: Game) => GameManager;
   delete: (id: GameId) => GameManager;
+  addAction: (gameId: string, action: Action) => GameManager;
 }
 
 const GameManager = () => {
@@ -28,6 +29,19 @@ const GameManager = () => {
     },
     delete(id) {
       this.games.delete(id);
+      return this;
+    },
+    addAction(gameId, action) {
+      try {
+        const game = this.games.get(gameId);
+        if (!game) throw new Error(`Game not found`);
+        const updatedGame = game.addAction(action);
+        this.games = this.games.set(gameId, updatedGame);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(e.message);
+        }
+      }
       return this;
     },
   };

@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { Static, t } from "elysia";
 
 // From bot to server
 const BotMoveActionSchema = t.Object({
@@ -15,5 +15,6 @@ export const BotActionSchema = t.Union([
   BotMoveActionSchema,
   BotTurnActionSchema,
 ]);
+export type BotAction = Static<typeof BotActionSchema>;
 
 // Server to bot

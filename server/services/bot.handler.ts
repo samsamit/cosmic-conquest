@@ -1,4 +1,5 @@
-import { AppSocket } from "src/types";
+import { BotAction } from "controllers/botController/bot.communication";
+import { AppSocket } from "../types";
 
 interface BotConnection {
   botToken: string;

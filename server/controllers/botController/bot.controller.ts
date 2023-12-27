@@ -40,6 +40,22 @@ export const botController = new Elysia()
     message: (socket, action) => {
       const connectionToken = socket.data.headers["connection-token"];
       const botToken = socket.data.headers["bot-token"];
+      switch (action.action) {
+        case "move":
+          socket.data.gameManager.addAction(connectionToken, {
+            botToken,
+            action: "move",
+            distance: action.distance,
+          });
+          break;
+        case "turn":
+          socket.data.gameManager.addAction(connectionToken, {
+            botToken,
+            action: "turn",
+            direction: action.direction,
+          });
+          break;
+      }
       console.log("bot sent message", action);
     },
   });
