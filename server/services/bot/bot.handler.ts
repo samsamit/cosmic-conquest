@@ -1,4 +1,4 @@
-import { AppSocket } from "../types";
+import { AppSocket } from "../../types";
 
 interface BotConnection {
   botToken: string;
@@ -23,6 +23,7 @@ interface BotHandler extends BotHandlerData {
     botToken: string
   ) => BotConnection | undefined;
   setGameId: (gameId: string, participatingBotIds: string[]) => BotHandler;
+  sendGameState: (gameId: string) => void;
 }
 
 export const BotHandler = (): BotHandler => {
@@ -65,6 +66,15 @@ export const BotHandler = (): BotHandler => {
         }
       }
       return this;
+    },
+    sendGameState(gameId) {
+      for (const [_, bots] of this.bots.entries()) {
+        for (const [_, bot] of bots.entries()) {
+          if (bot.gameId === gameId) {
+            bot.socket.send(JSON.stringify({ gameId }));
+          }
+        }
+      }
     },
   };
   return botHandler;

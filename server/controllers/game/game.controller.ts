@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
 import { setGameStateSchema, startGameSchema } from "./game.schema";
 import { GameState } from "@domain/models/game/game.model";
-import { decorators } from "../../server.plugins";
+import { getServerDecorators } from "server.init";
 
 export const gameController = new Elysia()
-  .use(decorators)
+  .use(getServerDecorators)
   .group("/game/:gameId", (app) =>
     app
       .post(

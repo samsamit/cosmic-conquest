@@ -1,8 +1,8 @@
 import Elysia, { t } from "elysia";
-import { decorators } from "../../server.plugins";
+import { getServerDecorators } from "server.init";
 
 export const clientController = new Elysia()
-  .use(decorators)
+  .use(getServerDecorators)
   .guard({
     headers: t.Object({
       "connection-token": t.String(),

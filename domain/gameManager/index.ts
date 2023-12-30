@@ -1,19 +1,22 @@
-import { Action, Game, createGame } from "../models/game/game.model";
+import { Action, Game, GameState, createGame } from "../models/game/game.model";
 
 type GameId = string;
 interface GameManager {
   games: Map<GameId, Game>;
+  gameLoopInterval: NodeJS.Timeout | null;
   createGame: (gameData: Parameters<typeof createGame>[0]) => GameManager;
   get: (id: GameId) => Game;
   set: (id: GameId, game: Game) => GameManager;
   delete: (id: GameId) => GameManager;
   addAction: (gameId: string, action: Action) => GameManager;
   getBotsGameID: (botToken: string) => string | null;
+  runGameLoop: (updateGameStateCallback: (gameId: string) => void) => void;
 }
 
 const GameManager = () => {
   const gameManager: GameManager = {
     games: new Map(),
+    gameLoopInterval: null,
     createGame(gameData) {
       const game = createGame(gameData);
       this.games.set(gameData.id, game);
@@ -51,6 +54,19 @@ const GameManager = () => {
           return gameId;
       }
       return null;
+    },
+    runGameLoop(updateGameStateCallback) {
+      if (this.gameLoopInterval) return;
+      this.gameLoopInterval = setInterval(() => {
+        for (const [_, game] of this.games.entries()) {
+          switch (game.state) {
+            case GameState.RUNNING:
+              game.gameRunner(updateGameStateCallback);
+            default:
+              return;
+          }
+        }
+      }, 1000);
     },
   };
 

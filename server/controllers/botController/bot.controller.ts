@@ -1,9 +1,9 @@
 import Elysia, { t } from "elysia";
-import { decorators } from "../../server.plugins";
 import { BotActionSchema } from "./bot.communication";
+import { getServerDecorators } from "server.init";
 
 export const botController = new Elysia()
-  .use(decorators)
+  .use(getServerDecorators)
   .guard({
     headers: t.Object({
       "connection-token": t.String(),
@@ -17,13 +17,13 @@ export const botController = new Elysia()
         const connectionToken = socket.data.headers["connection-token"];
         const botToken = socket.data.headers["bot-token"];
         const gameId = socket.data.gameManager.getBotsGameID(botToken);
+        console.log("bots gameId", gameId);
         socket.data.botHandler.addBot(
           connectionToken,
           botToken,
           socket.raw,
           gameId
         );
-        console.log("headers", socket.data.headers);
         console.log("bot connected");
         socket.send("connection_ok");
       } catch (e) {
@@ -78,7 +78,6 @@ export const botController = new Elysia()
           console.log(e);
           socket.send("unknown error");
         }
-        socket.close();
       }
     },
   });

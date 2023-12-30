@@ -1,4 +1,4 @@
-import { AppSocket } from "src/types";
+import { AppSocket } from "../../types";
 
 interface Client {
   userConnectionToken: string;
