@@ -4,10 +4,15 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch server.ts"
+    "dev": "bun run --watch server.ts",
+    "lint": "tsc --noEmit & eslint --fix"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "elysia": "latest",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "bun-types": "latest"

@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/contexts/AuthContext";
 import { Component } from "solid-js";
 
-const Profile: Component<{}> = (props) => {
+const Profile: Component<{}> = () => {
   const [authState, { login, logout }] = useAuthStore();
   return (
     <div>

@@ -7,14 +7,15 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint --fix"
+    "lint": "tsc --noEmit & eslint --fix"
   },
   "dependencies": {
     "@motionone/solid": "^10.16.4",
     "@solid-primitives/websocket": "^1.2.0",
     "@solidjs/router": "^0.10.5",
     "solid-js": "^1.8.7",
-    "vite-tsconfig-paths": "^4.2.3"
+    "vite-tsconfig-paths": "^4.2.3",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "^6.17.0",

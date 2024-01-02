@@ -1,9 +1,9 @@
 import { turnEntity } from "../../../logic/movement/direction.logic";
 import { moveEntity } from "../../../logic/movement/move.logic";
 import { Position } from "../../general";
-import { EntityData, EntityFunctions } from "../entity.model";
+import { BaseEntityData, EntityFunctions } from "../entity.model";
 
-export interface ProjectileData extends EntityData {
+export interface ProjectileData extends BaseEntityData {
   type: "projectile";
   speed: number;
   mass: number;
@@ -47,5 +47,16 @@ export const createProjectile = (
   },
   getDamage() {
     return this.speed * this.mass;
+  },
+  data() {
+    return {
+      id: this.id,
+      position: this.position,
+      direction: this.direction,
+      type: this.type,
+      speed: this.speed,
+      mass: this.mass,
+      hitboxRadius: this.hitboxRadius,
+    };
   },
 });

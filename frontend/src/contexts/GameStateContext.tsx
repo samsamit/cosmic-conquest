@@ -1,12 +1,25 @@
+import { GameStateSchema } from "@/schemas/gameState.schema";
+import { createReconnectingWS } from "@solid-primitives/websocket";
 import { createContext, useContext } from "solid-js";
 import { ParentComponent } from "solid-js";
-interface GameStateType {}
+import { createStore } from "solid-js/store";
 
-const gameStateContext = createContext<GameStateType>();
+interface GameState {}
+
+const gameStateContext = createContext<GameState>();
 
 export const GameStateContext: ParentComponent<{}> = (props) => {
+  const ws = createReconnectingWS("ws://localhost:5000");
+  const [gameState, setGameState] = createStore<GameState>({ map: null });
+  ws.addEventListener("message", (ev) => {
+    const gameState = GameStateSchema.safeParse(JSON.parse(ev.data));
+    if (gameState.success) {
+      setGameState(gameState.data);
+    }
+  });
+
   return (
-    <gameStateContext.Provider value={{}}>
+    <gameStateContext.Provider value={gameState}>
       {props.children}
     </gameStateContext.Provider>
   );

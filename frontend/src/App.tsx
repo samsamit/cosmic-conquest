@@ -3,7 +3,7 @@ import { Component } from "solid-js";
 import { useAuthStore } from "./contexts/AuthContext";
 import { A } from "@solidjs/router";
 
-const App: Component<{}> = (props) => {
+const App: Component<{}> = () => {
   const [authState, { login, logout }] = useAuthStore();
   return (
     <div>

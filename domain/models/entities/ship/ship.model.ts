@@ -1,10 +1,10 @@
 import { turnEntity } from "../../../logic/movement/direction.logic";
 import { moveEntity } from "../../../logic/movement/move.logic";
 import { Position } from "../../general";
-import { EntityData, EntityFunctions } from "../entity.model";
+import { BaseEntityData, EntityFunctions } from "../entity.model";
 import { Projectile, createProjectile } from "../projectile/projectile.model";
 
-export interface ShipData extends EntityData {
+export interface ShipData extends BaseEntityData {
   type: "ship";
   team: string;
   health: number;
@@ -66,6 +66,19 @@ export const createShip = (
         mass,
         speed,
       });
+    },
+    data() {
+      return {
+        id: this.id,
+        position: this.position,
+        direction: this.direction,
+        hitboxRadius: this.hitboxRadius,
+        maxHealth: this.maxHealth,
+        team: this.team,
+        health: this.health,
+        visionRange: this.visionRange,
+        type: "ship",
+      };
     },
   };
   return ship;

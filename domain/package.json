@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "build": "bun build . --out-dir out"
+    "build": "bun build . --out-dir out",
+    "lint": "tsc --noEmit && eslint"
   },
   "devDependencies": {
     "bun-types": "latest",

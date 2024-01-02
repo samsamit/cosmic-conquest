@@ -5,7 +5,7 @@ import {
   getDirectionToMapCenter,
   getInitialShipPositions,
 } from "../../logic/game/getInitialShipPositions";
-import { Entity } from "../entities/entity.model";
+import { Entity, EntityData, getEntitiesData } from "../entities/entity.model";
 import { getEntityActions } from "../../logic/game/actions/getEntityActions";
 import { handleMovementActions } from "../../logic/game/actions/handleMovementActions";
 import { handleShootActions } from "../../logic/game/actions/handleShootActions";
@@ -14,7 +14,6 @@ import {
   GameTeamMap,
   getGameMaps,
 } from "../../logic/mapGeneration/getGameMaps";
-import { Tile } from "../map.model";
 
 export enum GameState {
   READY,
@@ -37,7 +36,9 @@ export interface GameData {
 
 export interface GameUpdate {
   id: string;
-  gameMap: Tile[][];
+  entities: EntityData[];
+  mapWidth: number;
+  mapHeight: number;
   teamMaps: GameTeamMap[];
 }
 
@@ -112,7 +113,9 @@ export const createGame = (
         const gameMaps = getGameMaps(this.entities, this.settings);
         updateGameStateCallback({
           id: this.id,
-          gameMap: gameMaps.map,
+          entities: getEntitiesData(this.entities),
+          mapHeight: this.settings.mapHeight,
+          mapWidth: this.settings.mapWidth,
           teamMaps: gameMaps.teamMaps,
         });
       }
@@ -162,7 +165,9 @@ export const createGame = (
             const gameMaps = getGameMaps(this.entities, this.settings);
             updateGameStateCallback({
               id: this.id,
-              gameMap: gameMaps.map,
+              entities: getEntitiesData(this.entities),
+              mapHeight: this.settings.mapHeight,
+              mapWidth: this.settings.mapWidth,
               teamMaps: gameMaps.teamMaps,
             });
             this.gameLoopState = "waitingForActions";
