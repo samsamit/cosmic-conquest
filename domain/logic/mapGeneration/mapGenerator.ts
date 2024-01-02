@@ -1,6 +1,6 @@
 import { Entity } from "../../models/entities/entity.model";
 import { Ship } from "../../models/entities/ship/ship.model";
-import { CompassDirection, Position } from "../../models/general";
+import { Position } from "../../models/general";
 import { HiddenTile, Tile } from "../../models/map.model";
 import {
   findSignalPosition,
@@ -31,9 +31,7 @@ export const getGameMap = (
         map[ship.position.y][ship.position.x] = {
           type: "ship",
           id: ship.id,
-          direction: CompassDirection[
-            ship.direction
-          ] as keyof typeof CompassDirection,
+          direction: ship.direction,
         };
         shipHitBoxes.forEach((hitbox) => {
           map[hitbox.y][hitbox.x] = { type: "hitbox" };
@@ -65,9 +63,7 @@ export const getGameMap = (
         map[projectile.position.y][projectile.position.x] = {
           type: "projectile",
           id: projectile.id,
-          direction: CompassDirection[
-            projectile.direction
-          ] as keyof typeof CompassDirection,
+          direction: projectile.direction,
         };
         projectileHitBox.forEach((hitbox) => {
           map[hitbox.y][hitbox.x] = { type: "hitbox" };

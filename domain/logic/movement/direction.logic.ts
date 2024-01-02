@@ -1,6 +1,7 @@
 import { Entity } from "../../models/entities/entity.model";
 import {
   CompassDirection,
+  CompassDirectionList,
   Position,
   TurnDirection,
 } from "../../models/general";
@@ -13,12 +14,12 @@ export const turnEntity = (
     throw new Error("Entity does not have a direction");
   }
   const currentDirection = entity.direction;
-  const currentDirectionIndex = currentDirection.valueOf();
+  const currentDirectionIndex = CompassDirectionList.findIndex(
+    (v) => v === currentDirection
+  );
   const newDirectionIndex =
     (currentDirectionIndex + (direction === "left" ? -1 : 1) + 8) % 8;
-  return CompassDirection[
-    CompassDirection[newDirectionIndex] as keyof typeof CompassDirection
-  ];
+  return CompassDirectionList[newDirectionIndex];
 };
 
 export const getDistanceBetweenPositions = (

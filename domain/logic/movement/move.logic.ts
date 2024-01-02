@@ -5,15 +5,15 @@ export const moveEntity = (entity: Entity, distance: number): Position => {
   if (entity.type === "explosion") {
     throw new Error("Entity does not have a direction");
   }
-  const directionToDelta = {
-    [CompassDirection.North]: { x: 0, y: -distance },
-    [CompassDirection.NorthEast]: { x: distance, y: -distance },
-    [CompassDirection.East]: { x: distance, y: 0 },
-    [CompassDirection.SouthEast]: { x: distance, y: distance },
-    [CompassDirection.South]: { x: 0, y: distance },
-    [CompassDirection.SouthWest]: { x: -distance, y: distance },
-    [CompassDirection.West]: { x: -distance, y: 0 },
-    [CompassDirection.NorthWest]: { x: -distance, y: -distance },
+  const directionToDelta: Record<CompassDirection, Position> = {
+    North: { x: 0, y: -distance },
+    NorthEast: { x: distance, y: -distance },
+    East: { x: distance, y: 0 },
+    SouthEast: { x: distance, y: distance },
+    South: { x: 0, y: distance },
+    SouthWest: { x: -distance, y: distance },
+    West: { x: -distance, y: 0 },
+    NorthWest: { x: -distance, y: -distance },
   };
 
   const delta = directionToDelta[entity.direction];

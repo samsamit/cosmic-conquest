@@ -3,15 +3,17 @@ export interface Position {
   y: number;
 }
 
-export enum CompassDirection {
-  North,
-  NorthEast,
-  East,
-  SouthEast,
-  South,
-  SouthWest,
-  West,
-  NorthWest,
-}
+export const CompassDirectionList = [
+  "North",
+  "NorthEast",
+  "East",
+  "SouthEast",
+  "South",
+  "SouthWest",
+  "West",
+  "NorthWest",
+] as const;
+
+export type CompassDirection = (typeof CompassDirectionList)[number];
 
 export type TurnDirection = "left" | "right";

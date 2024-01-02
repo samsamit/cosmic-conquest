@@ -121,20 +121,20 @@ export const getDirectionToMapCenter = (
   const degree = ((angle * 180) / Math.PI + 360) % 360;
 
   if (degree >= 337.5 || degree < 22.5) {
-    return CompassDirection.East;
+    return "East";
   } else if (degree >= 22.5 && degree < 67.5) {
-    return CompassDirection.SouthEast;
+    return "SouthEast";
   } else if (degree >= 67.5 && degree < 112.5) {
-    return CompassDirection.South;
+    return "South";
   } else if (degree >= 112.5 && degree < 157.5) {
-    return CompassDirection.SouthWest;
+    return "SouthWest";
   } else if (degree >= 157.5 && degree < 202.5) {
-    return CompassDirection.West;
+    return "West";
   } else if (degree >= 202.5 && degree < 247.5) {
-    return CompassDirection.NorthWest;
+    return "NorthWest";
   } else if (degree >= 247.5 && degree < 292.5) {
-    return CompassDirection.North;
+    return "North";
   } else {
-    return CompassDirection.NorthEast;
+    return "NorthEast";
   }
 };

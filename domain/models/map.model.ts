@@ -3,7 +3,7 @@ import { CompassDirection } from "./general";
 export interface EntityTile {
   type: "ship" | "projectile";
   id: string;
-  direction: keyof typeof CompassDirection;
+  direction: CompassDirection;
 }
 
 export interface ExplosionTile {
