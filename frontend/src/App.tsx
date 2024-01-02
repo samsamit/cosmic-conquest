@@ -14,9 +14,12 @@ const App: Component<{}> = () => {
           <A href="/profile">
             <h2>Go to profile</h2>
           </A>
+          <A href="/game">
+            <h2>Go to game</h2>
+          </A>
         </>
       ) : (
-        <button onClick={() => login()}>Login</button>
+        <button onClick={() => login("token")}>Login</button>
       )}
     </div>
   );

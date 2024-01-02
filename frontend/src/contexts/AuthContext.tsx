@@ -3,16 +3,18 @@ import { createStore } from "solid-js/store";
 
 interface AuthState {
   isAuthenticated: boolean;
+  connectionToken: string;
 }
 const InitialAuthState: AuthState = {
   isAuthenticated: false,
+  connectionToken: "",
 };
 
 const makeAuthContext = (initialState: AuthState) => {
   const [state, setState] = createStore(initialState);
   const authStateFunctions = {
-    login: () => {
-      setState({ isAuthenticated: true });
+    login: (token: string) => {
+      setState({ connectionToken: token, isAuthenticated: true });
     },
     logout: () => {
       setState({ isAuthenticated: false });

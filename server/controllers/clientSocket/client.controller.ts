@@ -4,21 +4,18 @@ import { getServerDecorators } from "server.init";
 export const clientController = new Elysia()
   .use(getServerDecorators)
   .guard({
-    headers: t.Object({
-      "connection-token": t.String(),
+    query: t.Object({
+      connectionToken: t.String(),
     }),
   })
   .ws("/client", {
     open: (socket) => {
-      const connectionToken = socket.data.headers["connection-token"];
-
-      console.log("headers", socket.data.headers);
+      const connectionToken = socket.data.query["connectionToken"];
       socket.data.clientHandler.addClient(
         connectionToken as string,
         socket.raw
       );
-      console.log("client connected");
-      socket.send("connection_ok");
+      console.log("client connected with token: ", connectionToken);
     },
     close: (socket) => {
       const connectionToken = socket.data.headers["connection-token"];
