@@ -4,4 +4,7 @@ export interface GameSettings {
   mapWidth: number;
   mapHeight: number;
   shipHitboxRadius: number;
+  collisionDamage: number;
+  shipMaxHealth: number;
+  shipVisionRange: number;
 }

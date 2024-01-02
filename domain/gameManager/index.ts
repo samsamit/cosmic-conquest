@@ -1,4 +1,10 @@
-import { Action, Game, GameState, createGame } from "../models/game/game.model";
+import {
+  Action,
+  Game,
+  GameState,
+  GameUpdate,
+  createGame,
+} from "../models/game/game.model";
 
 type GameId = string;
 interface GameManager {
@@ -10,7 +16,7 @@ interface GameManager {
   delete: (id: GameId) => GameManager;
   addAction: (gameId: string, action: Action) => GameManager;
   getBotsGameID: (botToken: string) => string | null;
-  runGameLoop: (updateGameStateCallback: (gameId: string) => void) => void;
+  runGameLoop: (updateGameStateCallback: (update: GameUpdate) => void) => void;
 }
 
 const GameManager = () => {
@@ -58,10 +64,11 @@ const GameManager = () => {
     runGameLoop(updateGameStateCallback) {
       if (this.gameLoopInterval) return;
       this.gameLoopInterval = setInterval(() => {
-        for (const [_, game] of this.games.entries()) {
+        for (const game of this.games.values()) {
           switch (game.state) {
             case GameState.RUNNING:
               game.gameRunner(updateGameStateCallback);
+              return;
             default:
               return;
           }

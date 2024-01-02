@@ -1,12 +1,18 @@
 import { CompassDirection, Position } from "../../models/general";
 import { Participant } from "../../types";
 
+interface ShipPositionData {
+  shipId: string;
+  team: string;
+  position: Position;
+}
+
 export const getInitialShipPositions = (
   mapWidth: number,
   mapHeight: number,
   shipHitboxRadius: number,
   participants: Participant[]
-): Array<{ shipId: string; position: Position }> => {
+): Array<ShipPositionData> => {
   const teamsAndShips = Object.values(
     participants.reduce<Record<string, { team: string; ships: string[] }>>(
       (acc, participant) => {
@@ -24,7 +30,7 @@ export const getInitialShipPositions = (
       {} satisfies Record<string, { team: string; ships: string[] }>
     )
   );
-  const shipPositions: { shipId: string; position: Position }[] = [];
+  const shipPositions: ShipPositionData[] = [];
   const edgeMargin = shipHitboxRadius + 1; // Define how close to the edge the ship can spawn
   function getSpawnPoints(
     mapWidth: number,
@@ -91,6 +97,7 @@ export const getInitialShipPositions = (
       shipPositions.push({
         shipId,
         position: positionsByShip[shipIndex],
+        team: teamAndShips.team,
       });
     });
   });

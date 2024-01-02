@@ -1,35 +1,25 @@
-import { createSignal } from 'solid-js'
-import solidLogo from './assets/solid.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { Component } from "solid-js";
+import { useAuthStore } from "./contexts/AuthContext";
+import { A } from "@solidjs/router";
 
-function App() {
-  const [count, setCount] = createSignal(0)
-
+const App: Component<{}> = (props) => {
+  const [authState, { login, logout }] = useAuthStore();
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://solidjs.com" target="_blank">
-          <img src={solidLogo} class="logo solid" alt="Solid logo" />
-        </a>
-      </div>
-      <h1>Vite + Solid</h1>
-      <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count()}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p class="read-the-docs">
-        Click on the Vite and Solid logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h1>HOME</h1>
+      {authState.isAuthenticated ? (
+        <>
+          <button onClick={() => logout()}>Logout</button>
+          <A href="/profile">
+            <h2>Go to profile</h2>
+          </A>
+        </>
+      ) : (
+        <button onClick={() => login()}>Login</button>
+      )}
+    </div>
+  );
+};
 
-export default App
+export default App;

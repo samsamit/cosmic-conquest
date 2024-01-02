@@ -1,4 +1,4 @@
-import { expect, test, describe, it, beforeEach } from "bun:test";
+import { expect, describe, it, beforeEach } from "bun:test";
 import GameManager from ".";
 import { Participant } from "../types";
 

@@ -1,4 +1,3 @@
-import { Node } from "typescript";
 import { Participant } from "../../types";
 import { GameSettings } from "./gameSettings.model";
 import { Ship, createShip } from "../entities/ship/ship.model";
@@ -6,6 +5,16 @@ import {
   getDirectionToMapCenter,
   getInitialShipPositions,
 } from "../../logic/game/getInitialShipPositions";
+import { Entity } from "../entities/entity.model";
+import { getEntityActions } from "../../logic/game/actions/getEntityActions";
+import { handleMovementActions } from "../../logic/game/actions/handleMovementActions";
+import { handleShootActions } from "../../logic/game/actions/handleShootActions";
+import { runEntityActions } from "../../logic/game/actions/runEntityActions";
+import {
+  GameTeamMap,
+  getGameMaps,
+} from "../../logic/mapGeneration/getGameMaps";
+import { Tile } from "../map.model";
 
 export enum GameState {
   READY,
@@ -20,18 +29,22 @@ export interface GameData {
   participants: Participant[];
   state: GameState;
   actionQueue: Action[];
-  entities: Ship[];
+  entities: Entity[];
   settings: GameSettings;
   gameLoopState: GameLoopState;
   gameLoopTimestamp: number | null;
 }
 
+export interface GameUpdate {
+  id: string;
+  gameMap: Tile[][];
+  teamMaps: GameTeamMap[];
+}
+
 export interface GameFunctions {
   setState: (state: GameState) => Game;
   addAction: (action: Action) => Game;
-  gameRunner: (
-    updateGameStateCallback: (gameId: string) => void
-  ) => Promise<void>;
+  gameRunner: (updateGameStateCallback: (update: GameUpdate) => void) => void;
 }
 
 export type Game = GameData & GameFunctions;
@@ -45,6 +58,9 @@ export const createGame = (
     mapWidth: 10,
     mapHeight: 10,
     shipHitboxRadius: 1,
+    collisionDamage: 10,
+    shipMaxHealth: 100,
+    shipVisionRange: 3,
   };
 
   const initialShipPositions = getInitialShipPositions(
@@ -56,13 +72,17 @@ export const createGame = (
 
   const entities: Ship[] = initialShipPositions.map((shipPosition) =>
     createShip({
-      botToken: shipPosition.shipId,
+      id: shipPosition.shipId,
+      health: gameSettings.shipMaxHealth,
       position: shipPosition.position,
+      team: shipPosition.team,
+      visionRange: gameSettings.shipVisionRange,
       direction: getDirectionToMapCenter(
         shipPosition.position,
         gameSettings.mapWidth,
         gameSettings.mapHeight
       ),
+      hitboxRadius: gameSettings.shipHitboxRadius,
     })
   );
 
@@ -76,6 +96,7 @@ export const createGame = (
     gameLoopTimestamp: null,
     setState(state) {
       this.state = state;
+      console.log(`Game ${this.id} state set to ${GameState[state]}`);
       return this;
     },
     addAction(action) {
@@ -85,9 +106,15 @@ export const createGame = (
       this.actionQueue.push(action);
       return this;
     },
-    async gameRunner(updateGameStateCallback) {
+    gameRunner(updateGameStateCallback) {
       if (this.gameLoopTimestamp === null) {
         this.gameLoopTimestamp = performance.now();
+        const gameMaps = getGameMaps(this.entities, this.settings);
+        updateGameStateCallback({
+          id: this.id,
+          gameMap: gameMaps.map,
+          teamMaps: gameMaps.teamMaps,
+        });
       }
 
       const elapsedTime = performance.now() - this.gameLoopTimestamp;
@@ -104,6 +131,26 @@ export const createGame = (
           break;
         }
         case "runActions": {
+          const { moveActions, shootActions, turnActions } = getEntityActions(
+            this.actionQueue,
+            this.entities
+          );
+          const entityMoveActions = handleMovementActions(
+            this.entities,
+            moveActions,
+            this.settings.collisionDamage
+          );
+          const entityShootActions = handleShootActions(
+            shootActions,
+            this.entities
+          );
+
+          const updatedEntities = runEntityActions(
+            [...entityMoveActions, ...turnActions, ...entityShootActions],
+            this.entities
+          );
+
+          this.entities = updatedEntities;
           this.gameLoopState = "render";
           this.actionQueue = [];
           break;
@@ -112,7 +159,12 @@ export const createGame = (
         case "render": {
           if (elapsedTime > this.settings.renderWaitTime) {
             this.gameLoopTimestamp = performance.now();
-            updateGameStateCallback(this.id);
+            const gameMaps = getGameMaps(this.entities, this.settings);
+            updateGameStateCallback({
+              id: this.id,
+              gameMap: gameMaps.map,
+              teamMaps: gameMaps.teamMaps,
+            });
             this.gameLoopState = "waitingForActions";
           }
           break;
@@ -137,4 +189,10 @@ interface TurnAction extends BaseAction {
   direction: "left" | "right";
 }
 
-export type Action = MoveAction | TurnAction;
+interface ShootAction extends BaseAction {
+  action: "shoot";
+  mass: number;
+  speed: number;
+}
+
+export type Action = MoveAction | TurnAction | ShootAction;

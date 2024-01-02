@@ -13,3 +13,5 @@ export enum CompassDirection {
   West,
   NorthWest,
 }
+
+export type TurnDirection = "left" | "right";

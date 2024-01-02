@@ -8,8 +8,10 @@ import { CompassDirection } from "../../models/general";
 describe("getInitialShipPosition", () => {
   it("should get positions for each ship", () => {
     const shipPositions = getInitialShipPositions(100, 100, 2, [
-      { team: 0, ships: ["a", "b"] },
-      { team: 1, ships: ["c", "d"] },
+      { botToken: "a", teamName: "a", teamColor: "red" },
+      { botToken: "b", teamName: "a", teamColor: "red" },
+      { botToken: "c", teamName: "b", teamColor: "blue" },
+      { botToken: "d", teamName: "b", teamColor: "blue" },
     ]);
 
     expect(shipPositions.length).toBe(4);

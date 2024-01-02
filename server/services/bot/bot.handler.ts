@@ -1,4 +1,6 @@
+import { Tile } from "@domain/models/map.model";
 import { AppSocket } from "../../types";
+import { GameTeamMap } from "@domain/logic/mapGeneration/getGameMaps";
 
 interface BotConnection {
   botToken: string;
@@ -23,7 +25,7 @@ interface BotHandler extends BotHandlerData {
     botToken: string
   ) => BotConnection | undefined;
   setGameId: (gameId: string, participatingBotIds: string[]) => BotHandler;
-  sendGameState: (gameId: string) => void;
+  sendGameState: (gameId: string, teamMaps: GameTeamMap[]) => void;
 }
 
 export const BotHandler = (): BotHandler => {
@@ -67,11 +69,17 @@ export const BotHandler = (): BotHandler => {
       }
       return this;
     },
-    sendGameState(gameId) {
+    sendGameState(gameId, teamMaps) {
       for (const [_, bots] of this.bots.entries()) {
         for (const [_, bot] of bots.entries()) {
           if (bot.gameId === gameId) {
-            bot.socket.send(JSON.stringify({ gameId }));
+            const map = teamMaps.find((team) =>
+              team.shipIds.includes(bot.botToken)
+            )?.map;
+            if (!map) {
+              throw new Error("Bot is not in game");
+            }
+            bot.socket.send(JSON.stringify({ map }));
           }
         }
       }
