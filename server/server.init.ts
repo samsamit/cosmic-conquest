@@ -11,6 +11,11 @@ export function getServerDecorators(app: Elysia) {
   gameManager.runGameLoop((update) => {
     const { id, entities, mapHeight, mapWidth, teamMaps } = update;
     botHandler.sendGameState(id, teamMaps);
+
+    const connectionTokensFromGame =
+      botHandler.getConnectionTokensFromBotsInGame(id);
+
+    clientHandler.sendGameState(connectionTokensFromGame, update);
   });
   return app
     .decorate("gameManager", gameManager)

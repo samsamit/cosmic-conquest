@@ -8,8 +8,9 @@ interface BotConnection {
   gameId: string | null;
 }
 
+type ConnectionToken = string;
 interface BotHandlerData {
-  bots: Map<string, Map<string, BotConnection>>;
+  bots: Map<ConnectionToken, Map<string, BotConnection>>;
 }
 
 interface BotHandler extends BotHandlerData {
@@ -24,6 +25,7 @@ interface BotHandler extends BotHandlerData {
     userConnectionToken: string,
     botToken: string
   ) => BotConnection | undefined;
+  getConnectionTokensFromBotsInGame: (gameId: string) => ConnectionToken[];
   setGameId: (gameId: string, participatingBotIds: string[]) => BotHandler;
   sendGameState: (gameId: string, teamMaps: GameTeamMap[]) => void;
 }
@@ -63,6 +65,7 @@ export const BotHandler = (): BotHandler => {
       for (const [_, bots] of this.bots.entries()) {
         for (const [botToken, bot] of bots.entries()) {
           if (participatingBotIds.includes(botToken)) {
+            console.log("Adding bot to game", botToken, gameId);
             bot.gameId = gameId;
           }
         }
@@ -83,6 +86,17 @@ export const BotHandler = (): BotHandler => {
           }
         }
       }
+    },
+    getConnectionTokensFromBotsInGame(gameId) {
+      const connectionTokens: Set<ConnectionToken> = new Set();
+      for (const [connectionToken, bots] of this.bots.entries()) {
+        for (const bot of bots.values()) {
+          if (bot.gameId === gameId) {
+            connectionTokens.add(connectionToken);
+          }
+        }
+      }
+      return [...connectionTokens.values()];
     },
   };
   return botHandler;

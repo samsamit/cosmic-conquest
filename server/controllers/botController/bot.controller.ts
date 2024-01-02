@@ -5,17 +5,17 @@ import { getServerDecorators } from "server.init";
 export const botController = new Elysia()
   .use(getServerDecorators)
   .guard({
-    headers: t.Object({
-      "connection-token": t.String(),
-      "bot-token": t.String(),
+    query: t.Object({
+      connectionToken: t.String(),
+      botToken: t.String(),
     }),
   })
   .ws("/bot", {
     body: BotActionSchema,
     open: (socket) => {
       try {
-        const connectionToken = socket.data.headers["connection-token"];
-        const botToken = socket.data.headers["bot-token"];
+        const connectionToken = socket.data.query.connectionToken;
+        const botToken = socket.data.query.botToken;
         const gameId = socket.data.gameManager.getBotsGameID(botToken);
         console.log("bots gameId", gameId);
         socket.data.botHandler.addBot(
@@ -38,13 +38,13 @@ export const botController = new Elysia()
       }
     },
     close: (socket) => {
-      const connectionToken = socket.data.headers["connection-token"];
-      const botToken = socket.data.headers["bot-token"];
+      const connectionToken = socket.data.query.connectionToken;
+      const botToken = socket.data.query.botToken;
       socket.data.botHandler.removeBot(connectionToken, botToken);
       console.log("bot disconnected");
     },
     message: (socket, action) => {
-      const botToken = socket.data.headers["bot-token"];
+      const botToken = socket.data.query.botToken;
       const gameId = socket.data.gameManager.getBotsGameID(botToken);
       if (!gameId) {
         socket.send("Bot not in game");

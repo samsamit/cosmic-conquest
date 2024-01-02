@@ -29,9 +29,12 @@ export const GameStateContext: ParentComponent<{
     setGameState({ connected: false });
   });
   ws.addEventListener("message", (ev) => {
+    console.log("message %s", ev.data);
     const gameState = GameStateSchema.safeParse(JSON.parse(ev.data));
     if (gameState.success) {
       setGameState({ gameState: gameState.data });
+    } else {
+      alert(gameState.error.message);
     }
   });
 

@@ -1,7 +1,8 @@
+import { GameUpdate } from "@domain/models/game/game.model";
 import { AppSocket } from "../../types";
 
 interface Client {
-  userConnectionToken: string;
+  connectionToken: string;
   socket: AppSocket;
 }
 
@@ -10,25 +11,38 @@ interface ClientHandlerData {
 }
 
 interface ClientHandler extends ClientHandlerData {
-  addClient: (userConnectionToken: string, socket: AppSocket) => void;
-  removeClient: (userConnectionToken: string) => void;
-  getClient: (userConnectionToken: string) => Client | undefined;
+  addClient: (connectionToken: string, socket: AppSocket) => void;
+  removeClient: (connectionToken: string) => void;
+  getClient: (connectionToken: string) => Client | undefined;
+  sendGameState: (connectionTokens: string[], gameState: GameUpdate) => void;
 }
 
 export const ClientHandler = (): ClientHandler => {
   const clientHandler: ClientHandler = {
     clients: new Map(),
-    addClient: (userConnectionToken, socket) => {
-      clientHandler.clients.set(userConnectionToken, {
-        userConnectionToken,
+    addClient(connectionToken, socket) {
+      this.clients.set(connectionToken, {
+        connectionToken: connectionToken,
         socket,
       });
     },
-    removeClient: (userConnectionToken) => {
-      clientHandler.clients.delete(userConnectionToken);
+    removeClient(connectionToken) {
+      this.clients.delete(connectionToken);
     },
-    getClient: (userConnectionToken) => {
-      return clientHandler.clients.get(userConnectionToken);
+    getClient(connectionToken) {
+      return this.clients.get(connectionToken);
+    },
+    sendGameState(connectionTokens, gameState) {
+      connectionTokens.forEach((token) => {
+        const client = this.clients.get(token);
+        console.log("client", client);
+        if (!client) {
+          return;
+        }
+        console.log("sending game state to client", client.connectionToken);
+        const { entities, mapHeight, mapWidth } = gameState;
+        client.socket.send(JSON.stringify({ entities, mapHeight, mapWidth }));
+      });
     },
   };
   return clientHandler;

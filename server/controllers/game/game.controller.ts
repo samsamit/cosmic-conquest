@@ -14,6 +14,7 @@ export const gameController = new Elysia()
             id: gameId,
             participants: body.participants,
           });
+          console.log("Game created with id: ", gameId);
           botHandler.setGameId(
             gameId,
             body.participants.map((p) => p.botToken)
@@ -42,6 +43,7 @@ export const gameController = new Elysia()
               return new Response("Invalid state", { status: 400 });
           }
           gameManager.set(gameId, game);
+          console.log("Game state update request received");
           return new Response("State updated", { status: 200 });
         },
         { body: setGameStateSchema }
