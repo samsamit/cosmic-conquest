@@ -1,11 +1,18 @@
 import { GameState, GameStateSchema } from "@/schemas/gameState.schema";
-import { createContext, useContext } from "solid-js";
+import { createContext, createEffect, on, useContext } from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
+import { useWebSocket } from "solidjs-use";
 
+const socketConnectionState = [
+  "CONNECTING",
+  "OPEN",
+  "CLOSING",
+  "CLOSED",
+] as const;
 interface GameStateStore {
   gameState: GameState | null;
-  connected: boolean;
+  connection: (typeof socketConnectionState)[number];
 }
 
 const gameStateContext = createContext<GameStateStore>();
@@ -13,30 +20,38 @@ const gameStateContext = createContext<GameStateStore>();
 export const GameStateContext: ParentComponent<{
   connectionToken: string;
 }> = (props) => {
-  const basePath = import.meta.env.VITE_WEBSOCKET_PATH as string;
-  const ws = new WebSocket(
-    `${basePath}?connectionToken=${props.connectionToken}`
-  );
-
   const [gameState, setGameState] = createStore<GameStateStore>({
     gameState: null,
-    connected: false,
+    connection: "CLOSED",
   });
-  ws.addEventListener("open", () => {
-    setGameState({ connected: true });
-  });
-  ws.addEventListener("close", () => {
-    setGameState({ connected: false });
-  });
-  ws.addEventListener("message", (ev) => {
-    console.log("message %s", ev.data);
-    const gameState = GameStateSchema.safeParse(JSON.parse(ev.data));
-    if (gameState.success) {
-      setGameState({ gameState: gameState.data });
-    } else {
-      alert(gameState.error.message);
+  const { status, data } = useWebSocket<string>(
+    `${import.meta.env.VITE_WEBSOCKET_PATH}?connectionToken=${
+      props.connectionToken
+    }`,
+    {
+      autoReconnect: {
+        retries: 3,
+        delay: 1000,
+        onFailed() {
+          alert("Failed to connect WebSocket after 3 retries");
+        },
+      },
     }
-  });
+  );
+
+  createEffect(on(status, (status) => setGameState("connection", status)));
+  createEffect(
+    on(data, (data) => {
+      if (!data) return;
+      console.log("Message received:", data);
+      const gameState = GameStateSchema.safeParse(JSON.parse(data));
+      if (!gameState.success) {
+        console.error(gameState.error);
+        return;
+      }
+      setGameState("gameState", gameState.data);
+    })
+  );
 
   return (
     <gameStateContext.Provider value={gameState}>
