@@ -46,6 +46,7 @@ export interface GameFunctions {
   setState: (state: GameState) => Game;
   addAction: (action: Action) => Game;
   gameRunner: (updateGameStateCallback: (update: GameUpdate) => void) => void;
+  getUpdate: () => GameUpdate;
 }
 
 export type Game = GameData & GameFunctions;
@@ -175,6 +176,16 @@ export const createGame = (
           break;
         }
       }
+    },
+    getUpdate() {
+      const gameMaps = getGameMaps(this.entities, this.settings);
+      return {
+        id: this.id,
+        entities: getEntitiesData(this.entities),
+        mapHeight: this.settings.mapHeight,
+        mapWidth: this.settings.mapWidth,
+        teamMaps: gameMaps.teamMaps,
+      };
     },
   };
   return game;

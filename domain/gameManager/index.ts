@@ -17,6 +17,7 @@ interface GameManager {
   addAction: (gameId: string, action: Action) => GameManager;
   getBotsGameID: (botToken: string) => string | null;
   runGameLoop: (updateGameStateCallback: (update: GameUpdate) => void) => void;
+  getGameUpdate: (gameId: string) => GameUpdate | null;
 }
 
 const GameManager = () => {
@@ -74,6 +75,11 @@ const GameManager = () => {
           }
         }
       }, 1000);
+    },
+    getGameUpdate(gameId) {
+      const game = this.games.get(gameId);
+      if (!game) return null;
+      return game.getUpdate();
     },
   };
 
