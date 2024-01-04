@@ -17,6 +17,7 @@ const DirectionSchema = z.union([
   z.literal("West"),
   z.literal("NorthWest"),
 ]);
+export type Direction = z.infer<typeof DirectionSchema>;
 
 const ShipSchema = z.object({
   id: z.string(),

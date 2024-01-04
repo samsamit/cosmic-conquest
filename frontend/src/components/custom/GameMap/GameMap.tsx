@@ -1,13 +1,12 @@
 import { GameStateStore } from "@/contexts/GameStateContext";
-import { Entity, Position } from "@/schemas/gameState.schema";
+import { Position } from "@/schemas/gameState.schema";
 import {
   Component,
   For,
+  Index,
   ParentComponent,
-  Show,
   createEffect,
   createSignal,
-  on,
 } from "solid-js";
 import ValueButton from "../buttons/ValueButton";
 import {
@@ -19,35 +18,26 @@ import EntityCell from "./Entity";
 const GameMap: Component<{ gameData: NonNullable<GameStateStore["data"]> }> = (
   props
 ) => {
-  const [mapContainer, setMapContainer] = createSignal<HTMLDivElement>();
+  const [mapContainerRef, setMapContainerRef] = createSignal<HTMLDivElement>();
   createEffect(() => {
-    if (!mapContainer()) return;
-    handleDragScrolling(mapContainer());
-    centerContainer(mapContainer());
+    if (!mapContainerRef()) return;
+    handleDragScrolling(mapContainerRef());
+    centerContainer(mapContainerRef());
   });
   const [cellSize, setCellSize] = createSignal(40);
 
   const handleZoom = (change: number) => {
     setCellSize((prev) => prev + change);
-    centerContainer(mapContainer());
+    centerContainer(mapContainerRef());
   };
-
-  createEffect(() => console.log("gameData change", props.gameData));
 
   return (
     <>
-      <MapContainer onRef={(ref) => setMapContainer(ref)}>
-        <div
-          class="m-auto"
-          style={{
-            display: "grid",
-            "grid-template-columns": `repeat(${
-              props.gameData.mapWidth
-            }, ${cellSize()}px)`,
-            "grid-template-rows": `repeat(${
-              props.gameData.mapHeight
-            }, ${cellSize()}px)`,
-          }}
+      <MapContainer onRef={setMapContainerRef}>
+        <MapGrid
+          cellSize={cellSize()}
+          mapHeight={props.gameData.mapHeight}
+          mapWidth={props.gameData.mapWidth}
         >
           <For
             each={getCells(
@@ -55,26 +45,12 @@ const GameMap: Component<{ gameData: NonNullable<GameStateStore["data"]> }> = (
               props.gameData.mapHeight ?? 0
             )}
           >
-            {(position) => (
-              <Cell>
-                <For each={props.gameData.entities}>
-                  {(entity) => (
-                    <Show
-                      when={
-                        entity.position.x === position.x &&
-                        entity.position.y == position.y
-                          ? entity
-                          : false
-                      }
-                    >
-                      {(entity) => <EntityCell entity={entity()} />}
-                    </Show>
-                  )}
-                </For>
-              </Cell>
-            )}
+            {(position) => <Cell></Cell>}
           </For>
-        </div>
+          <Index each={props.gameData.entities}>
+            {(entity) => <EntityCell entity={entity()} cellSize={cellSize()} />}
+          </Index>
+        </MapGrid>
       </MapContainer>
       <ValueButton
         onDecrease={() => handleZoom(-5)}
@@ -86,14 +62,37 @@ const GameMap: Component<{ gameData: NonNullable<GameStateStore["data"]> }> = (
 };
 
 const Cell: ParentComponent = (props) => {
-  return <div class="border border-white w-full h-full">{props.children}</div>;
+  return (
+    <div class="border border-white w-full h-full flex justify-center items-center">
+      {props.children}
+    </div>
+  );
 };
 
 const MapContainer: ParentComponent<{
-  onRef: (ref: HTMLDivElement | undefined) => void;
+  onRef: (ref: HTMLDivElement) => void;
 }> = (props) => {
   return (
     <div ref={props.onRef} class="w-full h-full overflow-auto flex  p-4">
+      {props.children}
+    </div>
+  );
+};
+
+const MapGrid: ParentComponent<{
+  mapHeight: number;
+  mapWidth: number;
+  cellSize: number;
+}> = (props) => {
+  return (
+    <div
+      class="m-auto relative"
+      style={{
+        display: "grid",
+        "grid-template-columns": `repeat(${props.mapWidth}, ${props.cellSize}px)`,
+        "grid-template-rows": `repeat(${props.mapHeight}, ${props.cellSize}px)`,
+      }}
+    >
       {props.children}
     </div>
   );
@@ -110,13 +109,4 @@ const getCells = (mapWidth: number, mapHeight: number): Position[] => {
     }
   }
   return cells;
-};
-
-const getEntityInPosition = (position: Position, entities: Entity[]) => {
-  return (
-    entities.find(
-      (entity) =>
-        entity.position.x === position.x && entity.position.y === position.y
-    ) ?? null
-  );
 };
