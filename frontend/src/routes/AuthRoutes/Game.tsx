@@ -6,7 +6,7 @@ import { Component, Show, createResource } from "solid-js";
 
 const Game: Component<{}> = () => {
   const { gameId } = useParams();
-  const gameState = useGameState();
+  const [gameState] = useGameState();
   const [initialGameUpdate] = createResource(
     () => gameState,
     () => fetchGameUpdate(gameId)

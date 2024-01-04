@@ -25,14 +25,8 @@ export const botController = new Elysia()
           socket.raw,
           gameId
         );
-        const allBots = socket.data.botHandler.getUserBots(connectionToken);
-        socket.data.clientHandler.sendBots(
-          connectionToken,
-          allBots.map<BotData>((bot) => ({
-            botToken: bot.botToken,
-            gameId: bot.gameId,
-          }))
-        );
+        const allBots = socket.data.botHandler.getUserBotData(connectionToken);
+        socket.data.clientHandler.sendBots(connectionToken, allBots);
 
         console.log("bot connected");
         socket.send("connection_ok");
@@ -51,14 +45,8 @@ export const botController = new Elysia()
       const connectionToken = socket.data.query.connectionToken;
       const botToken = socket.data.query.botToken;
       socket.data.botHandler.removeBot(connectionToken, botToken);
-      const allBots = socket.data.botHandler.getUserBots(connectionToken);
-      socket.data.clientHandler.sendBots(
-        connectionToken,
-        allBots.map<BotData>((bot) => ({
-          botToken: bot.botToken,
-          gameId: bot.gameId,
-        }))
-      );
+      const allBots = socket.data.botHandler.getUserBotData(connectionToken);
+      socket.data.clientHandler.sendBots(connectionToken, allBots);
       console.log("bot disconnected");
     },
     message: (socket, action) => {

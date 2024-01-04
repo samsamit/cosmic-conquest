@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { Static, t } from "elysia";
+const ParticipantSchema = t.Object({
+  botToken: t.String(),
+  teamName: t.String(),
+  teamColor: t.String(),
+});
+export type ParticipantData = Static<typeof ParticipantSchema>;
 
 export const startGameSchema = t.Object({
-  participants: t.Array(
-    t.Object({
-      botToken: t.String(),
-      teamName: t.String(),
-      teamColor: t.String(),
-    })
-  ),
+  participants: t.Array(ParticipantSchema),
 });
 
 export const setGameStateSchema = t.Object({

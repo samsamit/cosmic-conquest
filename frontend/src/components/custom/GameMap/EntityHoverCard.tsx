@@ -3,12 +3,7 @@ import {
   HoverCardContent,
   HoverCard,
 } from "@/components/ui/hover-card";
-import {
-  Entity,
-  isExplosion,
-  isProjectile,
-  isShip,
-} from "@/schemas/gameState.schema";
+import { Entity, isProjectile, isShip } from "@/schemas/gameState.schema";
 
 import { Match, ParentComponent, Switch } from "solid-js";
 

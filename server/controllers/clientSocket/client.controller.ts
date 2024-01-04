@@ -13,14 +13,8 @@ export const clientController = new Elysia()
     open: (socket) => {
       const connectionToken = socket.data.query["connectionToken"];
       socket.data.clientHandler.addClient(connectionToken, socket.raw);
-      const allBots = socket.data.botHandler.getUserBots(connectionToken);
-      socket.data.clientHandler.sendBots(
-        connectionToken,
-        allBots.map<BotData>((bot) => ({
-          botToken: bot.botToken,
-          gameId: bot.gameId,
-        }))
-      );
+      const allBots = socket.data.botHandler.getUserBotData(connectionToken);
+      socket.data.clientHandler.sendBots(connectionToken, allBots);
       console.log("client connected with token: ", connectionToken);
     },
     close: (socket) => {

@@ -1,11 +1,14 @@
 import { Tile } from "@domain/models/map.model";
 import { AppSocket } from "../../types";
 import { GameTeamMap } from "@domain/logic/mapGeneration/getGameMaps";
+import { ParticipantData } from "controllers/game/game.schema";
 
 interface BotConnection {
   botToken: string;
+  connectionToken: string;
   socket: AppSocket;
   gameId: string | null;
+  color: string | null;
 }
 
 type ConnectionToken = string;
@@ -16,6 +19,8 @@ interface BotHandlerData {
 export interface BotData {
   botToken: string;
   gameId: string | null;
+  connectionToken: string;
+  color: string | null;
 }
 
 interface BotHandler extends BotHandlerData {
@@ -30,9 +35,12 @@ interface BotHandler extends BotHandlerData {
     userConnectionToken: string,
     botToken: string
   ) => BotConnection | undefined;
-  getUserBots: (userConnectionToken: string) => BotConnection[];
+  getUserBotData: (userConnectionToken: string) => BotData[];
   getConnectionTokensFromBotsInGame: (gameId: string) => ConnectionToken[];
-  setGameId: (gameId: string, participatingBotIds: string[]) => BotHandler;
+  setGameId: (
+    gameId: string,
+    participatingBots: ParticipantData[]
+  ) => BotHandler;
   sendGameState: (gameId: string, teamMaps: GameTeamMap[]) => void;
 }
 
@@ -44,7 +52,18 @@ export const BotHandler = (): BotHandler => {
       if (!connectionTokenBots) {
         this.bots.set(
           userConnectionToken,
-          new Map([[botToken, { botToken, socket, gameId }]])
+          new Map([
+            [
+              botToken,
+              {
+                botToken,
+                socket,
+                gameId,
+                color: null,
+                connectionToken: userConnectionToken,
+              },
+            ],
+          ])
         );
 
         return this;
@@ -56,6 +75,8 @@ export const BotHandler = (): BotHandler => {
         botToken,
         socket,
         gameId,
+        color: null,
+        connectionToken: userConnectionToken,
       });
       this.bots = this.bots.set(userConnectionToken, updatedBots);
       return this;
@@ -67,12 +88,16 @@ export const BotHandler = (): BotHandler => {
     getBot(userConnectionToken, botToken) {
       return this.bots.get(userConnectionToken)?.get(botToken);
     },
-    setGameId(gameId, participatingBotIds) {
+    setGameId(gameId, participatingBots) {
       for (const [_, bots] of this.bots.entries()) {
         for (const [botToken, bot] of bots.entries()) {
-          if (participatingBotIds.includes(botToken)) {
+          const participant = participatingBots.find(
+            (b) => b.botToken === bot.botToken
+          );
+          if (participant) {
             console.log("Adding bot to game", botToken, gameId);
             bot.gameId = gameId;
+            bot.color = participant.teamColor;
           }
         }
       }
@@ -104,12 +129,17 @@ export const BotHandler = (): BotHandler => {
       }
       return [...connectionTokens.values()];
     },
-    getUserBots(userConnectionToken) {
+    getUserBotData(userConnectionToken) {
       const bots = this.bots.get(userConnectionToken);
       if (!bots) {
         return [];
       }
-      return [...bots.values()];
+      return [...bots.values()].map<BotData>((bot) => ({
+        botToken: bot.botToken,
+        gameId: bot.gameId,
+        color: bot.color,
+        connectionToken: bot.connectionToken,
+      }));
     },
   };
   return botHandler;

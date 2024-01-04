@@ -15,9 +15,9 @@ import {
 } from "@/utils/handleDragScrolling";
 import EntityCell from "./Entity";
 
-const GameMap: Component<{ gameData: NonNullable<GameStateStore["data"]> }> = (
-  props
-) => {
+const GameMap: Component<{
+  gameData: NonNullable<GameStateStore["gameData"]>;
+}> = (props) => {
   const [mapContainerRef, setMapContainerRef] = createSignal<HTMLDivElement>();
   createEffect(() => {
     if (!mapContainerRef()) return;

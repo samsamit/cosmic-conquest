@@ -1,17 +1,9 @@
-import { fetchGameUpdate } from "@/api/getUpdate";
-import { Entity, GameState, GameStateSchema } from "@/schemas/gameState.schema";
+import { Entity } from "@/schemas/gameState.schema";
 import { BotData, SocketEventSchema } from "@/schemas/socket.schama";
-import {
-  createContext,
-  createEffect,
-  createMemo,
-  createResource,
-  on,
-  useContext,
-} from "solid-js";
+import { createContext, createEffect, on, useContext } from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
-import { Position, useWebSocket } from "solidjs-use";
+import { useWebSocket } from "solidjs-use";
 
 const socketConnectionState = [
   "CONNECTING",
@@ -27,9 +19,14 @@ export interface GameStateStore {
   } | null;
   bots: BotData[] | null;
   connection: (typeof socketConnectionState)[number];
+  gameId: string | null;
 }
 
-const GameStateContext = createContext<GameStateStore>();
+interface GameStateFunctions {
+  setGameId: (gameId: string) => void;
+}
+
+const GameStateContext = createContext<[GameStateStore, GameStateFunctions]>();
 
 export const GameStateProvider: ParentComponent<{
   connectionToken: string;
@@ -38,7 +35,14 @@ export const GameStateProvider: ParentComponent<{
     gameData: null,
     connection: "CLOSED",
     bots: null,
+    gameId: null,
   });
+
+  const functions: GameStateFunctions = {
+    setGameId: (gameId) => {
+      setGameState({ gameId });
+    },
+  };
 
   const { status, data } = useWebSocket<string>(
     `${import.meta.env.VITE_WEBSOCKET_PATH}?connectionToken=${
@@ -86,7 +90,7 @@ export const GameStateProvider: ParentComponent<{
   );
 
   return (
-    <GameStateContext.Provider value={gameState}>
+    <GameStateContext.Provider value={[gameState, functions]}>
       {props.children}
     </GameStateContext.Provider>
   );
