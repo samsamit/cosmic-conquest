@@ -13,6 +13,11 @@ interface BotHandlerData {
   bots: Map<ConnectionToken, Map<string, BotConnection>>;
 }
 
+export interface BotData {
+  botToken: string;
+  gameId: string | null;
+}
+
 interface BotHandler extends BotHandlerData {
   addBot: (
     userConnectionToken: string,
@@ -25,6 +30,7 @@ interface BotHandler extends BotHandlerData {
     userConnectionToken: string,
     botToken: string
   ) => BotConnection | undefined;
+  getUserBots: (userConnectionToken: string) => BotConnection[];
   getConnectionTokensFromBotsInGame: (gameId: string) => ConnectionToken[];
   setGameId: (gameId: string, participatingBotIds: string[]) => BotHandler;
   sendGameState: (gameId: string, teamMaps: GameTeamMap[]) => void;
@@ -97,6 +103,13 @@ export const BotHandler = (): BotHandler => {
         }
       }
       return [...connectionTokens.values()];
+    },
+    getUserBots(userConnectionToken) {
+      const bots = this.bots.get(userConnectionToken);
+      if (!bots) {
+        return [];
+      }
+      return [...bots.values()];
     },
   };
   return botHandler;

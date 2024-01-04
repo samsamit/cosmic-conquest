@@ -22,6 +22,10 @@ const routes: Array<AppRoute> = [
         component: lazy(() => import("@routes/AuthRoutes/Profile")),
       },
       {
+        path: "/game",
+        component: lazy(() => import("@routes/AuthRoutes/GameSetup")),
+      },
+      {
         path: "/game/:gameId",
         component: lazy(() => import("@routes/AuthRoutes/Game")),
       },

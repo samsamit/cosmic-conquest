@@ -18,8 +18,8 @@ const App: Component<{}> = () => {
           <A href="/profile">
             <h2>Go to profile</h2>
           </A>
-          <A href="/game/gameid1">
-            <h2>Go to game</h2>
+          <A href="/game">
+            <h2>Create game</h2>
           </A>
         </>
       ) : (

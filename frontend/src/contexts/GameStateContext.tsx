@@ -1,5 +1,6 @@
 import { fetchGameUpdate } from "@/api/getUpdate";
 import { Entity, GameState, GameStateSchema } from "@/schemas/gameState.schema";
+import { BotData, SocketEventSchema } from "@/schemas/socket.schama";
 import {
   createContext,
   createEffect,
@@ -19,11 +20,12 @@ const socketConnectionState = [
   "CLOSED",
 ] as const;
 export interface GameStateStore {
-  data: {
+  gameData: {
     entities: Entity[];
     mapWidth: number;
     mapHeight: number;
   } | null;
+  bots: BotData[] | null;
   connection: (typeof socketConnectionState)[number];
 }
 
@@ -33,8 +35,9 @@ export const GameStateProvider: ParentComponent<{
   connectionToken: string;
 }> = (props) => {
   const [gameState, setGameState] = createStore<GameStateStore>({
-    data: null,
+    gameData: null,
     connection: "CLOSED",
+    bots: null,
   });
 
   const { status, data } = useWebSocket<string>(
@@ -54,21 +57,31 @@ export const GameStateProvider: ParentComponent<{
 
   createEffect(on(status, (status) => setGameState("connection", status)));
   createEffect(
-    on(data, (data) => {
-      if (!data) return;
-      console.log("Message received:", data);
-      const gameState = GameStateSchema.safeParse(JSON.parse(data));
-      if (!gameState.success) {
-        console.error(gameState.error);
+    on(data, (message) => {
+      if (!message) return;
+      console.log("Message received:", message);
+      const eventData = SocketEventSchema.safeParse(JSON.parse(message));
+      if (!eventData.success) {
+        console.error(eventData.error);
         return;
       }
-      setGameState({
-        data: {
-          entities: gameState.data.entities,
-          mapWidth: gameState.data.mapWidth,
-          mapHeight: gameState.data.mapHeight,
-        },
-      });
+      const { event, data } = eventData.data;
+      switch (event) {
+        case "update": {
+          setGameState({
+            gameData: {
+              entities: data.entities,
+              mapWidth: data.mapWidth,
+              mapHeight: data.mapHeight,
+            },
+          });
+          break;
+        }
+        case "bots": {
+          setGameState({ bots: data.bots });
+          break;
+        }
+      }
     })
   );
 
