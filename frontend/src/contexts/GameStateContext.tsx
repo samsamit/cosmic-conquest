@@ -1,5 +1,12 @@
+import { fetchGameUpdate } from "@/api/getUpdate";
 import { Entity, GameState, GameStateSchema } from "@/schemas/gameState.schema";
-import { createContext, createEffect, on, useContext } from "solid-js";
+import {
+  createContext,
+  createEffect,
+  createResource,
+  on,
+  useContext,
+} from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Position, useWebSocket } from "solidjs-use";
@@ -10,7 +17,7 @@ const socketConnectionState = [
   "CLOSING",
   "CLOSED",
 ] as const;
-interface GameStateStore {
+export interface GameStateStore {
   data: {
     entities: Entity[];
     mapWidth: number;

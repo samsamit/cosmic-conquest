@@ -48,7 +48,7 @@ export const gameController = new Elysia()
         },
         { body: setGameStateSchema }
       )
-      .get("/gameUpdate", ({ gameManager, params: { gameId } }) => {
+      .get("/update", ({ gameManager, params: { gameId } }) => {
         const gameUpdate = gameManager.getGameUpdate(gameId);
         if (!gameUpdate) {
           return new Response("Game not found", { status: 404 });
