@@ -5,6 +5,8 @@ const PositionSchema = z.object({
   y: z.number(),
 });
 
+export type Position = z.infer<typeof PositionSchema>;
+
 const DirectionSchema = z.union([
   z.literal("North"),
   z.literal("NorthEast"),
@@ -45,7 +47,7 @@ const ExplosionSchema = z.object({
 });
 
 const EntitySchema = z.union([ShipSchema, ProjectileSchema, ExplosionSchema]);
-
+export type Entity = z.infer<typeof EntitySchema>;
 export const GameStateSchema = z.object({
   entities: EntitySchema.array(),
   mapHeight: z.number(),

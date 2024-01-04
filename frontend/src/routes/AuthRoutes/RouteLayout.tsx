@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/contexts/AuthContext";
-import { GameStateContext } from "@/contexts/GameStateContext";
+import { GameStateProvider } from "@/contexts/GameStateContext";
 import { Navigate } from "@solidjs/router";
 import { ParentComponent, createEffect } from "solid-js";
 
@@ -11,10 +11,10 @@ const RouteGuard: ParentComponent<{}> = (props) => {
     }
   });
   return (
-    <GameStateContext connectionToken={authState.connectionToken}>
+    <GameStateProvider connectionToken={authState.connectionToken}>
       <h1>isAuth: {authState.isAuthenticated.toString()} </h1>
       {props.children}
-    </GameStateContext>
+    </GameStateProvider>
   );
 };
 

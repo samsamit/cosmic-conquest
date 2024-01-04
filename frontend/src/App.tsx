@@ -3,7 +3,7 @@ import { Component } from "solid-js";
 import { useAuthStore } from "./contexts/AuthContext";
 import { A } from "@solidjs/router";
 import { Button } from "./components/ui/button";
-import ColorModeButton from "./components/custom/ColorModeButton";
+import ColorModeButton from "./components/custom/buttons/ColorModeButton";
 
 const App: Component<{}> = () => {
   const [authState, { login, logout }] = useAuthStore();

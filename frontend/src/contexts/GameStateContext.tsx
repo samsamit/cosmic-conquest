@@ -1,8 +1,8 @@
-import { GameState, GameStateSchema } from "@/schemas/gameState.schema";
+import { Entity, GameState, GameStateSchema } from "@/schemas/gameState.schema";
 import { createContext, createEffect, on, useContext } from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
-import { useWebSocket } from "solidjs-use";
+import { Position, useWebSocket } from "solidjs-use";
 
 const socketConnectionState = [
   "CONNECTING",
@@ -11,17 +11,21 @@ const socketConnectionState = [
   "CLOSED",
 ] as const;
 interface GameStateStore {
-  gameState: GameState | null;
+  data: {
+    entities: Entity[];
+    mapWidth: number;
+    mapHeight: number;
+  } | null;
   connection: (typeof socketConnectionState)[number];
 }
 
-const gameStateContext = createContext<GameStateStore>();
+const GameStateContext = createContext<GameStateStore>();
 
-export const GameStateContext: ParentComponent<{
+export const GameStateProvider: ParentComponent<{
   connectionToken: string;
 }> = (props) => {
   const [gameState, setGameState] = createStore<GameStateStore>({
-    gameState: null,
+    data: null,
     connection: "CLOSED",
   });
   const { status, data } = useWebSocket<string>(
@@ -49,19 +53,25 @@ export const GameStateContext: ParentComponent<{
         console.error(gameState.error);
         return;
       }
-      setGameState("gameState", gameState.data);
+      setGameState({
+        data: {
+          entities: gameState.data.entities,
+          mapWidth: gameState.data.mapWidth,
+          mapHeight: gameState.data.mapHeight,
+        },
+      });
     })
   );
 
   return (
-    <gameStateContext.Provider value={gameState}>
+    <GameStateContext.Provider value={gameState}>
       {props.children}
-    </gameStateContext.Provider>
+    </GameStateContext.Provider>
   );
 };
 
 export const useGameState = () => {
-  const gameState = useContext(gameStateContext);
+  const gameState = useContext(GameStateContext);
   if (!gameState) {
     throw new Error("useGameState must be used within a GameStateContext");
   }
