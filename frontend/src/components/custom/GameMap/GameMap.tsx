@@ -1,5 +1,5 @@
 import { GameStateStore } from "@/contexts/GameStateContext";
-import { Position } from "@/schemas/gameState.schema";
+import { Entity, Position } from "@/schemas/gameState.schema";
 import {
   Component,
   For,
@@ -7,55 +7,70 @@ import {
   Show,
   createEffect,
   createSignal,
+  on,
 } from "solid-js";
 import ValueButton from "../buttons/ValueButton";
 import {
   centerContainer,
   handleDragScrolling,
 } from "@/utils/handleDragScrolling";
+import EntityCell from "./Entity";
 
-const GameMap: Component<{ gameState: GameStateStore }> = (props) => {
+const GameMap: Component<{ gameData: NonNullable<GameStateStore["data"]> }> = (
+  props
+) => {
   const [mapContainer, setMapContainer] = createSignal<HTMLDivElement>();
   createEffect(() => {
     if (!mapContainer()) return;
     handleDragScrolling(mapContainer());
     centerContainer(mapContainer());
   });
-  const [cellSize, setCellSize] = createSignal(10);
+  const [cellSize, setCellSize] = createSignal(40);
 
   const handleZoom = (change: number) => {
     setCellSize((prev) => prev + change);
     centerContainer(mapContainer());
   };
+
+  createEffect(() => console.log("gameData change", props.gameData));
+
   return (
-    <Show
-      when={props.gameState.data}
-      fallback={<div>Waiting for game data...</div>}
-    >
+    <>
       <MapContainer onRef={(ref) => setMapContainer(ref)}>
         <div
           class="m-auto"
           style={{
             display: "grid",
             "grid-template-columns": `repeat(${
-              props.gameState.data?.mapWidth
+              props.gameData.mapWidth
             }, ${cellSize()}px)`,
             "grid-template-rows": `repeat(${
-              props.gameState.data?.mapHeight
+              props.gameData.mapHeight
             }, ${cellSize()}px)`,
           }}
         >
           <For
             each={getCells(
-              props.gameState.data?.mapWidth ?? 0,
-              props.gameState.data?.mapHeight ?? 0
+              props.gameData.mapWidth ?? 0,
+              props.gameData.mapHeight ?? 0
             )}
           >
             {(position) => (
               <Cell>
-                <small>
-                  {position.x} / {position.y}
-                </small>
+                <For each={props.gameData.entities}>
+                  {(entity) => (
+                    <Show
+                      when={
+                        entity.position.x === position.x &&
+                        entity.position.y == position.y
+                          ? entity
+                          : false
+                      }
+                    >
+                      {(entity) => <EntityCell entity={entity()} />}
+                    </Show>
+                  )}
+                </For>
               </Cell>
             )}
           </For>
@@ -66,7 +81,7 @@ const GameMap: Component<{ gameState: GameStateStore }> = (props) => {
         onIncrease={() => handleZoom(5)}
         class="absolute bottom-4 right-4"
       />
-    </Show>
+    </>
   );
 };
 
@@ -95,4 +110,13 @@ const getCells = (mapWidth: number, mapHeight: number): Position[] => {
     }
   }
   return cells;
+};
+
+const getEntityInPosition = (position: Position, entities: Entity[]) => {
+  return (
+    entities.find(
+      (entity) =>
+        entity.position.x === position.x && entity.position.y === position.y
+    ) ?? null
+  );
 };

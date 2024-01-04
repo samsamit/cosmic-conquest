@@ -3,6 +3,7 @@ import { Entity, GameState, GameStateSchema } from "@/schemas/gameState.schema";
 import {
   createContext,
   createEffect,
+  createMemo,
   createResource,
   on,
   useContext,
@@ -35,6 +36,7 @@ export const GameStateProvider: ParentComponent<{
     data: null,
     connection: "CLOSED",
   });
+
   const { status, data } = useWebSocket<string>(
     `${import.meta.env.VITE_WEBSOCKET_PATH}?connectionToken=${
       props.connectionToken
