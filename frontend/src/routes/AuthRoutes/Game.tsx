@@ -20,7 +20,7 @@ const Game: Component<{}> = () => {
   });
 
   return (
-    <div>
+    <div class="h-screen w-full">
       <GameMap gameState={thisGameState()} />
     </div>
   );

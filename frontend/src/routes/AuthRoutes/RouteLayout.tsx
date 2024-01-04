@@ -12,7 +12,6 @@ const RouteGuard: ParentComponent<{}> = (props) => {
   });
   return (
     <GameStateProvider connectionToken={authState.connectionToken}>
-      <h1>isAuth: {authState.isAuthenticated.toString()} </h1>
       {props.children}
     </GameStateProvider>
   );

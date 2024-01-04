@@ -1,4 +1,3 @@
-import "./App.css";
 import { Component } from "solid-js";
 import { useAuthStore } from "./contexts/AuthContext";
 import { A } from "@solidjs/router";
@@ -8,7 +7,7 @@ import ColorModeButton from "./components/custom/buttons/ColorModeButton";
 const App: Component<{}> = () => {
   const [authState, { login, logout }] = useAuthStore();
   return (
-    <div>
+    <div class="container flex flex-col items-center pt-4">
       <h1>HOME</h1>
       <ColorModeButton />
       {authState.isAuthenticated ? (
