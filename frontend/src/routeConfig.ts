@@ -10,24 +10,34 @@ interface AppRoute {
 const routes: Array<AppRoute> = [
   {
     path: "/",
-    component: lazy(() => import("@/App")),
+    component: lazy(() => import("@/routes/AppLayout")),
     exact: true,
-  },
-  {
-    path: "/",
-    component: lazy(() => import("@/routes/AuthRoutes/RouteLayout")),
     children: [
       {
-        path: "/profile",
-        component: lazy(() => import("@routes/AuthRoutes/Profile")),
+        path: "/",
+        component: lazy(() => import("@/routes/Home")),
       },
       {
-        path: "/game",
-        component: lazy(() => import("@routes/AuthRoutes/GameSetup")),
+        path: "/login",
+        component: lazy(() => import("@/routes/Login")),
       },
       {
-        path: "/game/:gameId",
-        component: lazy(() => import("@routes/AuthRoutes/Game")),
+        path: "/",
+        component: lazy(() => import("@/routes/AuthRoutes/RouteLayout")),
+        children: [
+          {
+            path: "/profile",
+            component: lazy(() => import("@routes/AuthRoutes/Profile")),
+          },
+          {
+            path: "/game",
+            component: lazy(() => import("@routes/AuthRoutes/GameSetup")),
+          },
+          {
+            path: "/game/:gameId",
+            component: lazy(() => import("@routes/AuthRoutes/Game")),
+          },
+        ],
       },
     ],
   },

@@ -1,26 +1,50 @@
+import { createLocalStore } from "@/utils/createLocalStore";
 import { ParentComponent, createContext, useContext } from "solid-js";
-import { createStore } from "solid-js/store";
 
 interface AuthState {
   isAuthenticated: boolean;
-  connectionToken: string;
+  teamName: string | null;
+  connectionToken: string | null;
 }
 const InitialAuthState: AuthState = {
   isAuthenticated: false,
-  connectionToken: "",
+  connectionToken: null,
+  teamName: null,
 };
 
 const makeAuthContext = (initialState: AuthState) => {
-  const [state, setState] = createStore(initialState);
+  const [authState, setAuthState] = createLocalStore("auth", initialState);
   const authStateFunctions = {
-    login: (token: string) => {
-      setState({ connectionToken: token, isAuthenticated: true });
+    login: (
+      token: string,
+      team: string
+    ): { success: boolean; errors: Record<string, string> } => {
+      const errors: Record<string, string> = {};
+      if (token === "") {
+        errors.token = "Token is required";
+      }
+      if (team === "") {
+        errors.team = "Team is required";
+      }
+      if (Object.keys(errors).length > 0) {
+        return { success: false, errors };
+      }
+      setAuthState({
+        connectionToken: token,
+        isAuthenticated: true,
+        teamName: team,
+      });
+      return { success: true, errors };
     },
     logout: () => {
-      setState({ isAuthenticated: false });
+      setAuthState({
+        isAuthenticated: false,
+        connectionToken: null,
+        teamName: null,
+      });
     },
   };
-  return [state, authStateFunctions] as const;
+  return [authState, authStateFunctions] as const;
 };
 
 const authContext = createContext<ReturnType<typeof makeAuthContext>>(

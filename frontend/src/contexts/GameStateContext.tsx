@@ -29,8 +29,11 @@ interface GameStateFunctions {
 const GameStateContext = createContext<[GameStateStore, GameStateFunctions]>();
 
 export const GameStateProvider: ParentComponent<{
-  connectionToken: string;
+  connectionToken: string | null;
 }> = (props) => {
+  if (!props.connectionToken) {
+    throw new Error("connectionToken is required");
+  }
   const [gameState, setGameState] = createStore<GameStateStore>({
     gameData: null,
     connection: "CLOSED",

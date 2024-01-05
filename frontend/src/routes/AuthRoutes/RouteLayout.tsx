@@ -7,7 +7,7 @@ const RouteGuard: ParentComponent<{}> = (props) => {
   const [authState] = useAuthStore();
   createEffect(() => {
     if (!authState.isAuthenticated) {
-      return <Navigate href="/" />;
+      return <Navigate href="/login" />;
     }
   });
   return (
