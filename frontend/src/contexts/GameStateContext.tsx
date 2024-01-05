@@ -1,16 +1,16 @@
 import { Entity } from "@/schemas/gameState.schema";
-import { BotData, SocketEventSchema } from "@/schemas/socket.schama";
-import { createContext, createEffect, on, useContext } from "solid-js";
+import { BotData, SocketEvent } from "@/schemas/socket.schama";
+import {
+  createComputed,
+  createContext,
+  createEffect,
+  on,
+  useContext,
+} from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
-import { useWebSocket } from "solidjs-use";
-
-const socketConnectionState = [
-  "CONNECTING",
-  "OPEN",
-  "CLOSING",
-  "CLOSED",
-] as const;
+import { useSocketData } from "./SocketContext";
+import { WebSocketStatus } from "solidjs-use";
 export interface GameStateStore {
   gameData: {
     entities: Entity[];
@@ -18,22 +18,25 @@ export interface GameStateStore {
     mapHeight: number;
   } | null;
   bots: BotData[] | null;
-  connection: (typeof socketConnectionState)[number];
+  connection: WebSocketStatus;
   gameId: string | null;
 }
 
 interface GameStateFunctions {
   setGameId: (gameId: string) => void;
+  handleGameEvent: (
+    eventData: Exclude<
+      SocketEvent,
+      {
+        event: "connectionInfo";
+      }
+    >
+  ) => void;
 }
 
 const GameStateContext = createContext<[GameStateStore, GameStateFunctions]>();
 
-export const GameStateProvider: ParentComponent<{
-  connectionToken: string | null;
-}> = (props) => {
-  if (!props.connectionToken) {
-    throw new Error("connectionToken is required");
-  }
+export const GameStateProvider: ParentComponent = (props) => {
   const [gameState, setGameState] = createStore<GameStateStore>({
     gameData: null,
     connection: "CLOSED",
@@ -45,34 +48,8 @@ export const GameStateProvider: ParentComponent<{
     setGameId: (gameId) => {
       setGameState({ gameId });
     },
-  };
-
-  const { status, data } = useWebSocket<string>(
-    `${import.meta.env.VITE_WEBSOCKET_PATH}?connectionToken=${
-      props.connectionToken
-    }`,
-    {
-      autoReconnect: {
-        retries: 3,
-        delay: 1000,
-        onFailed() {
-          alert("Failed to connect WebSocket after 3 retries");
-        },
-      },
-    }
-  );
-
-  createEffect(on(status, (status) => setGameState("connection", status)));
-  createEffect(
-    on(data, (message) => {
-      if (!message) return;
-      console.log("Message received:", message);
-      const eventData = SocketEventSchema.safeParse(JSON.parse(message));
-      if (!eventData.success) {
-        console.error(eventData.error);
-        return;
-      }
-      const { event, data } = eventData.data;
+    handleGameEvent: (eventData) => {
+      const { event, data } = eventData;
       switch (event) {
         case "update": {
           setGameState({
@@ -89,8 +66,8 @@ export const GameStateProvider: ParentComponent<{
           break;
         }
       }
-    })
-  );
+    },
+  };
 
   return (
     <GameStateContext.Provider value={[gameState, functions]}>

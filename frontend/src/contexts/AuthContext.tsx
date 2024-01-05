@@ -6,14 +6,25 @@ interface AuthState {
   teamName: string | null;
   connectionToken: string | null;
 }
-const InitialAuthState: AuthState = {
+const initialAuthState: AuthState = {
   isAuthenticated: false,
   connectionToken: null,
   teamName: null,
 };
 
-const makeAuthContext = (initialState: AuthState) => {
-  const [authState, setAuthState] = createLocalStore("auth", initialState);
+interface AuthFunctions {
+  login: (
+    token: string,
+    team: string
+  ) => { success: boolean; errors: Record<string, string> };
+  logout: () => void;
+  updateInfo: (teamName: string) => void;
+}
+
+const authContext = createContext<[AuthState, AuthFunctions]>();
+
+export const AuthContext: ParentComponent<{}> = (props) => {
+  const [authState, setAuthState] = createLocalStore("auth", initialAuthState);
   const authStateFunctions = {
     login: (
       token: string,
@@ -43,17 +54,12 @@ const makeAuthContext = (initialState: AuthState) => {
         teamName: null,
       });
     },
+    updateInfo: (teamName: string) => {
+      setAuthState({ teamName });
+    },
   };
-  return [authState, authStateFunctions] as const;
-};
-
-const authContext = createContext<ReturnType<typeof makeAuthContext>>(
-  makeAuthContext(InitialAuthState)
-);
-
-export const AuthContext: ParentComponent<{}> = (props) => {
   return (
-    <authContext.Provider value={makeAuthContext(InitialAuthState)}>
+    <authContext.Provider value={[authState, authStateFunctions]}>
       {props.children}
     </authContext.Provider>
   );

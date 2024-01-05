@@ -20,4 +20,18 @@ const UpdateEventSchema = z.object({
   data: GameStateSchema,
 });
 
-export const SocketEventSchema = z.union([BotsEventSchema, UpdateEventSchema]);
+const ConnectionEventSchema = z.object({
+  event: z.literal("connectionInfo"),
+  data: z.object({
+    connectionToken: z.string(),
+    teamName: z.string(),
+  }),
+});
+
+export const SocketEventSchema = z.union([
+  BotsEventSchema,
+  UpdateEventSchema,
+  ConnectionEventSchema,
+]);
+
+export type SocketEvent = z.infer<typeof SocketEventSchema>;

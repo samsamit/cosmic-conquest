@@ -1,9 +1,11 @@
 import { GameUpdate } from "@domain/models/game/game.model";
 import { AppSocket } from "../../types";
 import { BotData } from "services/bot/bot.handler";
+import { getRandomTeamName } from "utils/getRandomTeamName";
 
 interface Client {
   connectionToken: string;
+  teamName: string;
   socket: AppSocket;
 }
 
@@ -17,6 +19,7 @@ interface ClientHandler extends ClientHandlerData {
   getClient: (connectionToken: string) => Client | undefined;
   sendGameState: (connectionTokens: string[], gameState: GameUpdate) => void;
   sendBots: (connectionToken: string, bots: BotData[]) => void;
+  sendConnectionInfo: (connectionToken: string) => void;
 }
 
 export const ClientHandler = (): ClientHandler => {
@@ -26,6 +29,7 @@ export const ClientHandler = (): ClientHandler => {
       this.clients.set(connectionToken, {
         connectionToken: connectionToken,
         socket,
+        teamName: getRandomTeamName(connectionToken),
       });
     },
     removeClient(connectionToken) {
@@ -57,6 +61,21 @@ export const ClientHandler = (): ClientHandler => {
         return;
       }
       client.socket.send(JSON.stringify({ event: "bots", data: { bots } }));
+    },
+    sendConnectionInfo(connectionToken) {
+      const client = this.clients.get(connectionToken);
+      if (!client) {
+        return;
+      }
+      client.socket.send(
+        JSON.stringify({
+          event: "connectionInfo",
+          data: {
+            connectionToken: client.connectionToken,
+            teamName: client.teamName,
+          },
+        })
+      );
     },
   };
   return clientHandler;

@@ -10,7 +10,7 @@ const AppLayout: ParentComponent = (props) => {
 
   createEffect(() => {
     if (!authState.isAuthenticated) {
-      navigate("/");
+      navigate("/login");
     }
   });
 

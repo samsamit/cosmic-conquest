@@ -1,96 +1,110 @@
 import { ParticipantData, createGame } from "@/api/createGame";
+import TeamsContainer, {
+  Team,
+} from "@/components/custom/TeamSelection/TeamsContainer";
 import { Button } from "@/components/ui/button";
+import { INITIAL_TEAM_NAME } from "@/constants";
 import { useGameState } from "@/contexts/GameStateContext";
-import { BotData } from "@/schemas/socket.schama";
-import { FaSolidMinus, FaSolidPlus } from "solid-icons/fa";
-import { Component, For, Match, Switch, createSignal } from "solid-js";
-import { createStore } from "solid-js/store";
+import { useNavigate } from "@solidjs/router";
+import {
+  Component,
+  createComputed,
+  createMemo,
+  createSignal,
+  on,
+} from "solid-js";
 
 const GameSetup: Component = () => {
   const [gameData, { setGameId }] = useGameState();
-  const [bots, setBots] = createStore<ParticipantData[]>(
-    getParticipantData(gameData.bots ?? [])
+  const navigate = useNavigate();
+
+  const [teams, setTeams] = createSignal<Team[]>([
+    {
+      name: INITIAL_TEAM_NAME,
+      color: "",
+      bots:
+        gameData.bots?.map<ParticipantData>((b) => ({
+          botToken: b.botToken,
+          teamColor: "",
+          teamName: INITIAL_TEAM_NAME,
+        })) ?? [],
+    },
+  ]);
+
+  createComputed(
+    on(
+      () => gameData.bots ?? [],
+      (bots) => {
+        const botsInTeams = teams().reduce(
+          (acc, t) => [...acc, ...t.bots.map((b) => b.botToken)],
+          [] as string[]
+        );
+        const botsNotInTeams = bots
+          .filter((b) => !botsInTeams.includes(b.botToken))
+          .map((b) => b.botToken);
+        const missingBots = botsInTeams.filter(
+          (b) => !bots.map((b) => b.botToken).includes(b)
+        );
+        const updatedTeams = teams().map((t) => {
+          if (t.name === INITIAL_TEAM_NAME) {
+            return {
+              ...t,
+              bots: [
+                ...t.bots.filter((b) => !missingBots.includes(b.botToken)),
+                ...botsNotInTeams.map((b) => ({
+                  botToken: b,
+                  teamColor: t.color,
+                  teamName: t.name,
+                })),
+              ],
+            };
+          }
+          return {
+            ...t,
+            bots: [...t.bots.filter((b) => !missingBots.includes(b.botToken))],
+          };
+        });
+        setTeams(updatedTeams);
+      }
+    )
   );
-  const [selectedBots, setSelectedBots] = createSignal<ParticipantData[]>([]);
-  const handleCreateGame = async () => {
-    const gameId = await createGame(selectedBots());
+
+  const handleStartGame = async () => {
+    const battleTeams = teams().filter((t) => t.name !== INITIAL_TEAM_NAME);
+    const participantData = battleTeams.reduce(
+      (acc, t) => [...acc, ...t.bots],
+      [] as ParticipantData[]
+    );
+    console.log(participantData);
+    const gameId = await createGame(participantData);
     if (!gameId) {
-      alert("Failed to create game");
+      alert("Something went wrong");
       return;
     }
     setGameId(gameId);
+    navigate("/game/" + gameId);
   };
 
-  const handleBotSelect = (bot: ParticipantData) => {
-    if (selectedBots().find((b) => b.botToken === bot.botToken)) {
-      setSelectedBots(
-        selectedBots().filter((b) => b.botToken !== bot.botToken)
-      );
-    } else {
-      setSelectedBots((prev) => [...prev, bot]);
-    }
-  };
+  const readyToStart = createMemo(() => {
+    const battleTeams = teams().filter((t) => t.name !== INITIAL_TEAM_NAME);
+    console.log(battleTeams);
+    return (
+      battleTeams.length > 0 && battleTeams.every((t) => t.bots.length > 0)
+    );
+  });
 
   return (
-    <div class="container pt-4">
-      <h1>Game Setup</h1>
-      <div class="flex flex-col gap-1 w-min">
-        <For each={bots}>
-          {(bot) => (
-            <div class="flex items-center justify-between text-nowrap gap-2">
-              <p>Token: {bot.botToken}</p>
-              <SelectButton
-                selected={selectedBots().includes(bot)}
-                onToggle={() => handleBotSelect(bot)}
-              />
-            </div>
-          )}
-        </For>
-      </div>
-      <Button onClick={handleCreateGame}>Create Game</Button>
+    <div class="container pt-4 flex flex-col gap-4">
+      <h1>Game setup:</h1>
+      <TeamsContainer teams={teams()} onTeamsChange={setTeams} />
+      <Button
+        disabled={!readyToStart()}
+        onClick={async () => await handleStartGame()}
+      >
+        {readyToStart() ? "Ready for battle!" : "Add bots to teams"}
+      </Button>
     </div>
   );
 };
 
 export default GameSetup;
-
-const SelectButton: Component<{ selected: boolean; onToggle: () => void }> = (
-  props
-) => {
-  return (
-    <Switch>
-      <Match when={!props.selected}>
-        <Button size={"sm"} onClick={props.onToggle}>
-          <FaSolidPlus />
-        </Button>
-      </Match>
-      <Match when={props.selected}>
-        <Button variant={"destructive"} size={"sm"} onClick={props.onToggle}>
-          <FaSolidMinus />
-        </Button>
-      </Match>
-    </Switch>
-  );
-};
-
-const teamColors: string[] = [
-  "#FF5733", // Team 1
-  "#33FF57", // Team 2
-  "#5733FF", // Team 3
-  "#FF33A1", // Team 4
-  "#33A1FF", // Team 5
-  "#A1FF33", // Team 6
-  "#FF3366", // Team 7
-  "#3366FF", // Team 8
-  "#FF6633", // Team 9
-  "#6633FF", // Team 10
-];
-
-const getParticipantData = (bots: BotData[]) => {
-  const teams = Array.from(new Set(bots.map((bot) => bot.connectionToken)));
-  return bots.map<ParticipantData>((bot) => ({
-    botToken: bot.botToken,
-    teamName: bot.connectionToken,
-    teamColor: teamColors[teams.indexOf(bot.connectionToken)],
-  }));
-};
