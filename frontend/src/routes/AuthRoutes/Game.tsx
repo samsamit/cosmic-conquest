@@ -13,7 +13,7 @@ const Game: Component<{}> = () => {
   );
 
   return (
-    <div class="h-screen w-full">
+    <div class="h-full w-full relative">
       <Show
         when={gameState.gameData ? gameState.gameData : initialGameUpdate()}
         fallback={<div>Waiting for game data...</div>}

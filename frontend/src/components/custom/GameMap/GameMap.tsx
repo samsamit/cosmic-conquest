@@ -7,6 +7,7 @@ import {
   ParentComponent,
   createEffect,
   createSignal,
+  onMount,
 } from "solid-js";
 import ValueButton from "../buttons/ValueButton";
 import {
@@ -14,6 +15,7 @@ import {
   handleDragScrolling,
 } from "@/utils/handleDragScrolling";
 import EntityCell from "./Entity";
+import { createResizeObserver } from "@solid-primitives/resize-observer";
 
 const GameMap: Component<{
   gameData: NonNullable<GameStateStore["gameData"]>;
@@ -73,7 +75,10 @@ const MapContainer: ParentComponent<{
   onRef: (ref: HTMLDivElement) => void;
 }> = (props) => {
   return (
-    <div ref={props.onRef} class="w-full h-full overflow-auto flex  p-4">
+    <div
+      ref={props.onRef}
+      class="absolute top-0 left-0 right-0 bottom-0 overflow-auto flex  p-4"
+    >
       {props.children}
     </div>
   );
