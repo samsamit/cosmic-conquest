@@ -9,7 +9,7 @@ export const getTestEntity = (
   team: string,
   position: Position,
   visionRange = 1,
-  direction: CompassDirection = CompassDirection.East
+  direction: CompassDirection = "East"
 ): Entity => {
   switch (type) {
     case "ship":
@@ -21,6 +21,7 @@ export const getTestEntity = (
         health: 10,
         visionRange,
         team,
+        teamColor: "red",
       });
     case "projectile":
       return createProjectile({

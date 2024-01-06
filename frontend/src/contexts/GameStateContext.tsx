@@ -1,15 +1,8 @@
 import { Entity } from "@/schemas/gameState.schema";
 import { BotData, SocketEvent } from "@/schemas/socket.schama";
-import {
-  createComputed,
-  createContext,
-  createEffect,
-  on,
-  useContext,
-} from "solid-js";
+import { createContext, useContext } from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
-import { useSocketData } from "./SocketContext";
 import { WebSocketStatus } from "solidjs-use";
 export interface GameStateStore {
   gameData: {

@@ -26,6 +26,7 @@ const ShipSchema = z.object({
   hitboxRadius: z.number(),
   type: z.literal("ship"),
   team: z.string(),
+  teamColor: z.string(),
   health: z.number(),
   maxHealth: z.number(),
   visionRange: z.number(),

@@ -51,6 +51,7 @@ const EntityCell: Component<{
                       "transition-property": "transform",
                       "transition-duration": "0.5s",
                       "transition-timing-function": "ease-in-out",
+                      fill: ship().teamColor,
                     }}
                   />
                 )}

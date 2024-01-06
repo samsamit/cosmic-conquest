@@ -5,27 +5,27 @@ import { getDistanceBetweenPositions, turnEntity } from "./direction.logic";
 import { describe, expect, it } from "bun:test";
 describe("turnEntity", () => {
   it("should turn the entity to the right", () => {
-    const entity: Entity = { direction: CompassDirection.North } as Entity;
+    const entity: Entity = { direction: "North" } as Entity;
     const newDirection = turnEntity(entity, "right");
-    expect(newDirection).toBe(CompassDirection.NorthEast);
+    expect(newDirection).toBe("NorthEast");
   });
 
   it("should turn the entity to the left", () => {
-    const entity: Entity = { direction: CompassDirection.North } as Entity;
+    const entity: Entity = { direction: "North" } as Entity;
     const newDirection = turnEntity(entity, "left");
-    expect(newDirection).toBe(CompassDirection.NorthWest);
+    expect(newDirection).toBe("NorthWest");
   });
 
   it("should wrap around to North when turning right from NorthWest", () => {
-    const entity: Entity = { direction: CompassDirection.NorthWest } as Entity;
+    const entity: Entity = { direction: "NorthWest" } as Entity;
     const newDirection = turnEntity(entity, "right");
-    expect(newDirection).toBe(CompassDirection.North);
+    expect(newDirection).toBe("North");
   });
 
   it("should wrap around to NorthWest when turning left from North", () => {
-    const entity: Entity = { direction: CompassDirection.North } as Entity;
+    const entity: Entity = { direction: "North" } as Entity;
     const newDirection = turnEntity(entity, "left");
-    expect(newDirection).toBe(CompassDirection.NorthWest);
+    expect(newDirection).toBe("NorthWest");
   });
 });
 

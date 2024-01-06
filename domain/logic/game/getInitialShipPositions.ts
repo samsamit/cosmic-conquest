@@ -4,6 +4,7 @@ import { Participant } from "../../types";
 interface ShipPositionData {
   shipId: string;
   team: string;
+  teamColor: string;
   position: Position;
 }
 
@@ -14,21 +15,21 @@ export const getInitialShipPositions = (
   participants: Participant[]
 ): Array<ShipPositionData> => {
   const teamsAndShips = Object.values(
-    participants.reduce<Record<string, { team: string; ships: string[] }>>(
-      (acc, participant) => {
-        const team = participant.teamName;
-        if (acc[team]) {
-          acc[team].ships.push(participant.botToken);
-        } else {
-          acc[team] = {
-            team,
-            ships: [participant.botToken],
-          };
-        }
-        return acc;
-      },
-      {} satisfies Record<string, { team: string; ships: string[] }>
-    )
+    participants.reduce<
+      Record<string, { team: string; teamColor: string; ships: string[] }>
+    >((acc, participant) => {
+      const team = participant.teamName;
+      if (acc[team]) {
+        acc[team].ships.push(participant.botToken);
+      } else {
+        acc[team] = {
+          team,
+          teamColor: participant.teamColor,
+          ships: [participant.botToken],
+        };
+      }
+      return acc;
+    }, {} satisfies Record<string, { team: string; ships: string[] }>)
   );
   const shipPositions: ShipPositionData[] = [];
   const edgeMargin = shipHitboxRadius + 1; // Define how close to the edge the ship can spawn
@@ -98,6 +99,7 @@ export const getInitialShipPositions = (
         shipId,
         position: positionsByShip[shipIndex],
         team: teamAndShips.team,
+        teamColor: teamAndShips.teamColor,
       });
     });
   });

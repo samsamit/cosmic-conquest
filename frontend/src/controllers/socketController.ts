@@ -1,5 +1,5 @@
 import { SocketEvent, SocketEventSchema } from "@/schemas/socket.schama";
-import { createComputed, createEffect } from "solid-js";
+import { createComputed } from "solid-js";
 import { createStore } from "solid-js/store";
 import { WebSocketStatus, useWebSocket } from "solidjs-use";
 

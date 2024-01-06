@@ -78,6 +78,7 @@ export const createGame = (
       health: gameSettings.shipMaxHealth,
       position: shipPosition.position,
       team: shipPosition.team,
+      teamColor: shipPosition.teamColor,
       visionRange: gameSettings.shipVisionRange,
       direction: getDirectionToMapCenter(
         shipPosition.position,

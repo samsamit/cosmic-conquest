@@ -7,6 +7,7 @@ import { Projectile, createProjectile } from "../projectile/projectile.model";
 export interface ShipData extends BaseEntityData {
   type: "ship";
   team: string;
+  teamColor: string;
   health: number;
   maxHealth: number;
   visionRange: number;
@@ -75,6 +76,7 @@ export const createShip = (
         hitboxRadius: this.hitboxRadius,
         maxHealth: this.maxHealth,
         team: this.team,
+        teamColor: this.teamColor,
         health: this.health,
         visionRange: this.visionRange,
         type: "ship",
