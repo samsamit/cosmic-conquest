@@ -45,7 +45,9 @@ const EntityCell: Component<{
                   <VsRocket
                     class="w-3/5 h-3/5"
                     style={{
-                      transform: `rotate(${getRotation(ship().direction)}deg)`,
+                      transform: `rotate(${
+                        getRotation(ship().direction) - 45
+                      }deg)`,
                       "transition-property": "transform",
                       "transition-duration": "0.5s",
                       "transition-timing-function": "ease-in-out",
