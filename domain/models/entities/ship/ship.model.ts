@@ -12,6 +12,7 @@ export interface ShipData extends BaseEntityData {
   health: number;
   maxHealth: number;
   visionRange: number;
+  manualControl?: boolean;
 }
 
 export interface Ship extends ShipData, EntityFunctions {
@@ -82,6 +83,7 @@ export const createShip = (
         health: this.health,
         visionRange: this.visionRange,
         type: "ship",
+        manualControl: this.manualControl,
       };
     },
   };

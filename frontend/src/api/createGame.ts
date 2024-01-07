@@ -3,6 +3,7 @@ export interface ParticipantData {
   name: string;
   teamName: string;
   teamColor: string;
+  manualControl?: boolean;
 }
 
 export const createGame = async (participants: ParticipantData[]) => {

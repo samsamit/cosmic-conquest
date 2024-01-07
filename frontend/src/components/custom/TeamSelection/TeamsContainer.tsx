@@ -27,13 +27,10 @@ import {
   uniqueNamesGenerator,
 } from "unique-names-generator";
 
-export interface TeamParticipantData extends ParticipantData {
-  test: boolean;
-}
 export interface Team {
   name: string;
   color: string;
-  bots: TeamParticipantData[];
+  bots: ParticipantData[];
 }
 
 const TeamsContainer: Component<{
@@ -52,7 +49,7 @@ const TeamsContainer: Component<{
   const handleDrop = (e: DragEvent, targetTeam: string) => {
     const data = e.dataTransfer?.getData("botId");
     if (!data) return;
-    const { botToken, teamName, test, name }: TeamParticipantData =
+    const { botToken, teamName, manualControl, name }: ParticipantData =
       JSON.parse(data);
     if (teamName === targetTeam) return;
     console.log("drop", botToken, teamName, targetTeam);
@@ -68,7 +65,13 @@ const TeamsContainer: Component<{
           ...t,
           bots: [
             ...t.bots,
-            { botToken, name, teamName: t.name, teamColor: t.color, test },
+            {
+              botToken,
+              name,
+              teamName: t.name,
+              teamColor: t.color,
+              manualControl,
+            },
           ],
         };
       }
@@ -126,12 +129,12 @@ const TeamsContainer: Component<{
   };
 
   const addTestBot = () => {
-    const testParticipantData: TeamParticipantData = {
+    const testParticipantData: ParticipantData = {
       botToken: crypto.randomUUID(),
       name: getRandomParticipantName(),
       teamColor: "",
       teamName: INITIAL_TEAM_NAME,
-      test: true,
+      manualControl: true,
     };
     const updatedTeams = props.teams.map((t) => {
       if (t.name === INITIAL_TEAM_NAME) {
@@ -196,7 +199,7 @@ const TeamsContainer: Component<{
 };
 
 const BotComponent: Component<{
-  bot: TeamParticipantData;
+  bot: ParticipantData;
   removeTestParticipant: () => void;
   onDrag: (e: DragEvent) => void;
 }> = (props) => {
@@ -211,7 +214,7 @@ const BotComponent: Component<{
           class="h-6 flex gap-2"
         >
           {props.bot.name}
-          <Show when={props.bot.test}>
+          <Show when={props.bot.manualControl}>
             <Button
               class="text-sm h-4 w-4 rounded-full p-0"
               variant={"ghost"}

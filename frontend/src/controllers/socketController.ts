@@ -36,6 +36,7 @@ export const createSocketConnection = (connectionToken: string): SocketData => {
 
     if (parsedData.success) {
       console.log("Got socket event: ", parsedData.data.event);
+      console.log(parsedData.data);
       setSocketData({
         connectionState: status(),
         payload: parsedData.data,

@@ -4,6 +4,7 @@ const ParticipantSchema = t.Object({
   name: t.String(),
   teamName: t.String(),
   teamColor: t.String(),
+  manualControl: t.Optional(t.Boolean()),
 });
 export type ParticipantData = Static<typeof ParticipantSchema>;
 

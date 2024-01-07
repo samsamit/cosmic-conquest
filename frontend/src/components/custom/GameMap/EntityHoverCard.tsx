@@ -22,6 +22,7 @@ const EntityHoverCard: ParentComponent<{ entity: Entity }> = (props) => {
                 <p>Id: {entity().id}</p>
                 <p>Team: {entity().team}</p>
                 <p>Dir: {entity().direction}</p>
+                {entity().manualControl && <p>Manual control</p>}
                 <p>
                   x: {entity().position.x}, y: {entity().position.y}
                 </p>

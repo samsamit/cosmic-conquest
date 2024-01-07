@@ -93,6 +93,7 @@ export const createGame = (
         gameSettings.mapHeight
       ),
       hitboxRadius: gameSettings.shipHitboxRadius,
+      manualControl: participant.manualControl,
     });
   });
 

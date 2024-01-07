@@ -3,4 +3,5 @@ export interface Participant {
   name: string;
   teamName: string;
   teamColor: string;
+  manualControl?: boolean;
 }

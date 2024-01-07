@@ -1,7 +1,6 @@
 import { ParticipantData, createGame } from "@/api/createGame";
 import TeamsContainer, {
   Team,
-  TeamParticipantData,
 } from "@/components/custom/TeamSelection/TeamsContainer";
 import { Button } from "@/components/ui/button";
 import { INITIAL_TEAM_NAME } from "@/constants";
@@ -24,11 +23,12 @@ const GameSetup: Component = () => {
       name: INITIAL_TEAM_NAME,
       color: "",
       bots:
-        gameData.bots?.map<TeamParticipantData>((b) => ({
+        gameData.bots?.map<ParticipantData>((b) => ({
           botToken: b.botToken,
           teamColor: "",
           teamName: INITIAL_TEAM_NAME,
           test: false,
+          name: b.name,
         })) ?? [],
     },
   ]);
@@ -38,33 +38,40 @@ const GameSetup: Component = () => {
       () => gameData.bots ?? [],
       (bots) => {
         const botsInTeams = teams().reduce(
-          (acc, t) => [...acc, ...t.bots.map((b) => b.botToken)],
-          [] as string[]
+          (acc, t) => [...acc, ...t.bots],
+          [] as ParticipantData[]
         );
-        const botsNotInTeams = bots
-          .filter((b) => !botsInTeams.includes(b.botToken))
-          .map((b) => b.botToken);
+        const botsNotInTeams = bots.filter(
+          (b) => !botsInTeams.map((b) => b.botToken).includes(b.botToken)
+        );
         const missingBots = botsInTeams.filter(
-          (b) => !bots.map((b) => b.botToken).includes(b)
+          (b) => !bots.map((b) => b.botToken).includes(b.botToken)
         );
         const updatedTeams = teams().map((t) => {
           if (t.name === INITIAL_TEAM_NAME) {
             return {
               ...t,
               bots: [
-                ...t.bots.filter((b) => !missingBots.includes(b.botToken)),
-                ...botsNotInTeams.map<TeamParticipantData>((b) => ({
-                  botToken: b,
+                ...t.bots.filter(
+                  (b) =>
+                    !missingBots.map((b) => b.botToken).includes(b.botToken)
+                ),
+                ...botsNotInTeams.map<ParticipantData>((b) => ({
+                  botToken: b.botToken,
                   teamColor: t.color,
                   teamName: t.name,
-                  test: false,
+                  name: b.name,
                 })),
               ],
             };
           }
           return {
             ...t,
-            bots: [...t.bots.filter((b) => !missingBots.includes(b.botToken))],
+            bots: [
+              ...t.bots.filter(
+                (b) => !missingBots.map((b) => b.botToken).includes(b.botToken)
+              ),
+            ],
           };
         });
         setTeams(updatedTeams);
@@ -79,6 +86,8 @@ const GameSetup: Component = () => {
         botToken: b.botToken,
         teamColor: t.color,
         teamName: t.name,
+        name: b.name,
+        manualControl: b.manualControl,
       }));
       return [...acc, ...participants];
     }, [] as ParticipantData[]);

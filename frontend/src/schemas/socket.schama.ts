@@ -6,6 +6,7 @@ const BotsDataSchema = z.object({
   gameId: z.string().nullable(),
   color: z.string().nullable(),
   connectionToken: z.string(),
+  name: z.string(),
 });
 
 export type BotData = z.infer<typeof BotsDataSchema>;

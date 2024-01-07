@@ -30,6 +30,7 @@ const ShipSchema = z.object({
   health: z.number(),
   maxHealth: z.number(),
   visionRange: z.number(),
+  manualControl: z.boolean().optional(),
 });
 export type Ship = z.infer<typeof ShipSchema>;
 
