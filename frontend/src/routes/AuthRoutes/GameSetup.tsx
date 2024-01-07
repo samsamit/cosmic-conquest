@@ -4,7 +4,7 @@ import TeamsContainer, {
   TeamParticipantData,
 } from "@/components/custom/TeamSelection/TeamsContainer";
 import { Button } from "@/components/ui/button";
-import { INITIAL_TEAM_NAME, defaultTeams } from "@/constants";
+import { INITIAL_TEAM_NAME } from "@/constants";
 import { useGameState } from "@/contexts/GameStateContext";
 import { useNavigate } from "@solidjs/router";
 import {

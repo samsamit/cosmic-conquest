@@ -5,6 +5,7 @@ import { ParticipantData } from "controllers/game/game.schema";
 
 interface BotConnection {
   botToken: string;
+  name: string;
   connectionToken: string;
   socket: AppSocket;
   gameId: string | null;
@@ -28,7 +29,8 @@ interface BotHandler extends BotHandlerData {
     userConnectionToken: string,
     botToken: string,
     socket: AppSocket,
-    gameId: string | null
+    gameId: string | null,
+    name: string
   ) => BotHandler;
   removeBot: (userConnectionToken: string, botToken: string) => BotHandler;
   getBot: (
@@ -47,7 +49,7 @@ interface BotHandler extends BotHandlerData {
 export const BotHandler = (): BotHandler => {
   const botHandler: BotHandler = {
     bots: new Map(),
-    addBot(userConnectionToken, botToken, socket, gameId) {
+    addBot(userConnectionToken, botToken, socket, gameId, name) {
       const connectionTokenBots = this.bots.get(userConnectionToken);
       if (!connectionTokenBots) {
         this.bots.set(
@@ -57,6 +59,7 @@ export const BotHandler = (): BotHandler => {
               botToken,
               {
                 botToken,
+                name,
                 socket,
                 gameId,
                 color: null,
@@ -73,6 +76,7 @@ export const BotHandler = (): BotHandler => {
       }
       const updatedBots = connectionTokenBots.set(botToken, {
         botToken,
+        name,
         socket,
         gameId,
         color: null,

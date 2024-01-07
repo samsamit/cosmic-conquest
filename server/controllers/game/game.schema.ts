@@ -1,6 +1,7 @@
 import { Static, t } from "elysia";
 const ParticipantSchema = t.Object({
   botToken: t.String(),
+  name: t.String(),
   teamName: t.String(),
   teamColor: t.String(),
 });

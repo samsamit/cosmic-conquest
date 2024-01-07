@@ -72,9 +72,16 @@ export const createGame = (
     gameData.participants
   );
 
-  const entities: Ship[] = initialShipPositions.map((shipPosition) =>
-    createShip({
+  const entities: Ship[] = initialShipPositions.map((shipPosition) => {
+    const participant = gameData.participants.find(
+      (p) => p.botToken === shipPosition.shipId
+    );
+    if (!participant) {
+      throw new Error("Participant not found");
+    }
+    return createShip({
       id: shipPosition.shipId,
+      name: participant.name,
       health: gameSettings.shipMaxHealth,
       position: shipPosition.position,
       team: shipPosition.team,
@@ -86,8 +93,8 @@ export const createGame = (
         gameSettings.mapHeight
       ),
       hitboxRadius: gameSettings.shipHitboxRadius,
-    })
-  );
+    });
+  });
 
   const game: Game = {
     ...gameData,

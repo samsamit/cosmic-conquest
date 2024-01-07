@@ -6,6 +6,7 @@ import { Projectile, createProjectile } from "../projectile/projectile.model";
 
 export interface ShipData extends BaseEntityData {
   type: "ship";
+  name: string;
   team: string;
   teamColor: string;
   health: number;
@@ -71,6 +72,7 @@ export const createShip = (
     data() {
       return {
         id: this.id,
+        name: this.name,
         position: this.position,
         direction: this.direction,
         hitboxRadius: this.hitboxRadius,

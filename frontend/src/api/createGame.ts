@@ -1,5 +1,6 @@
 export interface ParticipantData {
   botToken: string;
+  name: string;
   teamName: string;
   teamColor: string;
 }

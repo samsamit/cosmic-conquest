@@ -2,7 +2,13 @@ import { ParticipantData } from "@/api/createGame";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { INITIAL_TEAM_NAME, defaultTeams } from "@/constants";
+import { As } from "@kobalte/core";
 import clsx from "clsx";
 import { AiTwotoneCloseCircle } from "solid-icons/ai";
 
@@ -15,6 +21,11 @@ import {
   createEffect,
   createSignal,
 } from "solid-js";
+import {
+  adjectives,
+  animals,
+  uniqueNamesGenerator,
+} from "unique-names-generator";
 
 export interface TeamParticipantData extends ParticipantData {
   test: boolean;
@@ -41,7 +52,8 @@ const TeamsContainer: Component<{
   const handleDrop = (e: DragEvent, targetTeam: string) => {
     const data = e.dataTransfer?.getData("botId");
     if (!data) return;
-    const { botToken, teamName, test }: TeamParticipantData = JSON.parse(data);
+    const { botToken, teamName, test, name }: TeamParticipantData =
+      JSON.parse(data);
     if (teamName === targetTeam) return;
     console.log("drop", botToken, teamName, targetTeam);
     const updatedTeams = props.teams.map((t) => {
@@ -56,7 +68,7 @@ const TeamsContainer: Component<{
           ...t,
           bots: [
             ...t.bots,
-            { botToken, teamName: t.name, teamColor: t.color, test },
+            { botToken, name, teamName: t.name, teamColor: t.color, test },
           ],
         };
       }
@@ -116,6 +128,7 @@ const TeamsContainer: Component<{
   const addTestBot = () => {
     const testParticipantData: TeamParticipantData = {
       botToken: crypto.randomUUID(),
+      name: getRandomParticipantName(),
       teamColor: "",
       teamName: INITIAL_TEAM_NAME,
       test: true,
@@ -187,19 +200,33 @@ const BotComponent: Component<{
   removeTestParticipant: () => void;
   onDrag: (e: DragEvent) => void;
 }> = (props) => {
+  const [showTooltip, setShowTooltip] = createSignal(false);
   return (
-    <Badge draggable onDragStart={props.onDrag} class="h-6 flex gap-2">
-      {props.bot.botToken}
-      <Show when={props.bot.test}>
-        <Button
-          class="text-sm h-4 w-4 rounded-full p-0"
-          variant={"ghost"}
-          onClick={props.removeTestParticipant}
+    <Tooltip open={showTooltip()} onOpenChange={setShowTooltip}>
+      <TooltipTrigger asChild>
+        <As
+          component={Badge}
+          draggable
+          onDragStart={props.onDrag}
+          class="h-6 flex gap-2"
         >
-          <AiTwotoneCloseCircle />
-        </Button>
-      </Show>
-    </Badge>
+          {props.bot.name}
+          <Show when={props.bot.test}>
+            <Button
+              class="text-sm h-4 w-4 rounded-full p-0"
+              variant={"ghost"}
+              onClick={() => {
+                setShowTooltip(false);
+                props.removeTestParticipant;
+              }}
+            >
+              <AiTwotoneCloseCircle />
+            </Button>
+          </Show>
+        </As>
+      </TooltipTrigger>
+      <TooltipContent>Token: {props.bot.botToken}</TooltipContent>
+    </Tooltip>
   );
 };
 
@@ -252,4 +279,13 @@ const getNewTeam = (teams: Team[]) => {
   );
   if (availableTeams.length === 0) return;
   return availableTeams[0];
+};
+
+const getRandomParticipantName = () => {
+  const name = uniqueNamesGenerator({
+    dictionaries: [adjectives, animals],
+    length: 2,
+    separator: " test ",
+  });
+  return name;
 };

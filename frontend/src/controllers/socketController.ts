@@ -1,4 +1,5 @@
 import { SocketEvent, SocketEventSchema } from "@/schemas/socket.schama";
+import { useNavigate } from "@solidjs/router";
 import { createComputed } from "solid-js";
 import { createStore } from "solid-js/store";
 import { WebSocketStatus, useWebSocket } from "solidjs-use";
@@ -10,6 +11,7 @@ export interface SocketData {
 }
 
 export const createSocketConnection = (connectionToken: string): SocketData => {
+  const navigate = useNavigate();
   const [socketData, setSocketData] = createStore<SocketData>({
     connectionState: "CLOSED",
     payload: null,
@@ -22,6 +24,7 @@ export const createSocketConnection = (connectionToken: string): SocketData => {
         delay: 1000,
         onFailed() {
           alert("Failed to connect WebSocket after 3 retries");
+          navigate("/");
         },
       },
     }

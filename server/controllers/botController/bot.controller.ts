@@ -1,7 +1,6 @@
 import Elysia, { t } from "elysia";
 import { BotActionSchema } from "./bot.communication";
 import { getServerDecorators } from "server.init";
-import { BotData } from "services/bot/bot.handler";
 
 export const botController = new Elysia()
   .use(getServerDecorators)
@@ -9,6 +8,7 @@ export const botController = new Elysia()
     query: t.Object({
       connectionToken: t.String(),
       botToken: t.String(),
+      name: t.String(),
     }),
   })
   .ws("/bot", {
@@ -17,13 +17,15 @@ export const botController = new Elysia()
       try {
         const connectionToken = socket.data.query.connectionToken;
         const botToken = socket.data.query.botToken;
+        const name = socket.data.query.name;
         const gameId = socket.data.gameManager.getBotsGameID(botToken);
         console.log("bots gameId", gameId);
         socket.data.botHandler.addBot(
           connectionToken,
           botToken,
           socket.raw,
-          gameId
+          gameId,
+          name
         );
         const allBots = socket.data.botHandler.getUserBotData(connectionToken);
         socket.data.clientHandler.sendBots(connectionToken, allBots);
