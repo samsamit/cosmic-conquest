@@ -17,7 +17,7 @@ import {
 } from "solid-js";
 
 export interface TeamParticipantData extends ParticipantData {
-  test?: boolean;
+  test: boolean;
 }
 export interface Team {
   name: string;
@@ -41,7 +41,7 @@ const TeamsContainer: Component<{
   const handleDrop = (e: DragEvent, targetTeam: string) => {
     const data = e.dataTransfer?.getData("botId");
     if (!data) return;
-    const { botToken, teamName }: ParticipantData = JSON.parse(data);
+    const { botToken, teamName, test }: TeamParticipantData = JSON.parse(data);
     if (teamName === targetTeam) return;
     console.log("drop", botToken, teamName, targetTeam);
     const updatedTeams = props.teams.map((t) => {
@@ -54,7 +54,10 @@ const TeamsContainer: Component<{
       if (t.name === targetTeam) {
         return {
           ...t,
-          bots: [...t.bots, { botToken, teamName: t.name, teamColor: t.color }],
+          bots: [
+            ...t.bots,
+            { botToken, teamName: t.name, teamColor: t.color, test },
+          ],
         };
       }
       return t;
@@ -96,6 +99,38 @@ const TeamsContainer: Component<{
     }));
     props.onTeamsChange(updatedTeams);
   };
+  const addTeam = () => {
+    const defaultTeam = getNewTeam(props.teams);
+    if (!defaultTeam) {
+      alert("No more teams available");
+      return;
+    }
+    const newTeam: Team = {
+      name: defaultTeam.name,
+      color: defaultTeam.color,
+      bots: [],
+    };
+    props.onTeamsChange([...props.teams, newTeam]);
+  };
+
+  const addTestBot = () => {
+    const testParticipantData: TeamParticipantData = {
+      botToken: crypto.randomUUID(),
+      teamColor: "",
+      teamName: INITIAL_TEAM_NAME,
+      test: true,
+    };
+    const updatedTeams = props.teams.map((t) => {
+      if (t.name === INITIAL_TEAM_NAME) {
+        return {
+          ...t,
+          bots: [...t.bots, testParticipantData],
+        };
+      }
+      return t;
+    });
+    props.onTeamsChange(updatedTeams);
+  };
 
   return (
     <div class="flex flex-col gap-4">
@@ -105,7 +140,16 @@ const TeamsContainer: Component<{
             team={team}
             onDrop={(e) => handleDrop(e, team.name)}
             actionButton={
-              team.name !== INITIAL_TEAM_NAME && (
+              team.name === INITIAL_TEAM_NAME ? (
+                <div class="flex gap-2">
+                  <Button size={"sm"} class="h-6 text-sm" onClick={addTestBot}>
+                    Add test bot
+                  </Button>
+                  <Button size={"sm"} class="h-6 text-sm" onClick={addTeam}>
+                    Add team
+                  </Button>
+                </div>
+              ) : (
                 <Button
                   size={"icon"}
                   onClick={() => removeTeam(team.name)}
@@ -200,3 +244,12 @@ const TeamComponent: ParentComponent<{
 };
 
 export default TeamsContainer;
+
+const getNewTeam = (teams: Team[]) => {
+  const teamsWithoutInitial = teams.filter((t) => t.name !== INITIAL_TEAM_NAME);
+  const availableTeams = defaultTeams.filter(
+    (t) => !teamsWithoutInitial.map((t) => t.color).includes(t.color)
+  );
+  if (availableTeams.length === 0) return;
+  return availableTeams[0];
+};
