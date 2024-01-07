@@ -1,9 +1,10 @@
 import { ParticipantData, createGame } from "@/api/createGame";
 import TeamsContainer, {
   Team,
+  TeamParticipantData,
 } from "@/components/custom/TeamSelection/TeamsContainer";
 import { Button } from "@/components/ui/button";
-import { INITIAL_TEAM_NAME } from "@/constants";
+import { INITIAL_TEAM_NAME, defaultTeams } from "@/constants";
 import { useGameState } from "@/contexts/GameStateContext";
 import { useNavigate } from "@solidjs/router";
 import {
@@ -71,11 +72,14 @@ const GameSetup: Component = () => {
 
   const handleStartGame = async () => {
     const battleTeams = teams().filter((t) => t.name !== INITIAL_TEAM_NAME);
-    const participantData = battleTeams.reduce(
-      (acc, t) => [...acc, ...t.bots],
-      [] as ParticipantData[]
-    );
-    console.log(participantData);
+    const participantData = battleTeams.reduce((acc, t) => {
+      const participants: ParticipantData[] = t.bots.map((b) => ({
+        botToken: b.botToken,
+        teamColor: t.color,
+        teamName: t.name,
+      }));
+      return [...acc, ...participants];
+    }, [] as ParticipantData[]);
     const gameId = await createGame(participantData);
     if (!gameId) {
       alert("Something went wrong");
@@ -93,9 +97,51 @@ const GameSetup: Component = () => {
     );
   });
 
+  const addTeam = () => {
+    const defaultTeam = getNewTeam(teams());
+    if (!defaultTeam) {
+      alert("No more teams available");
+      return;
+    }
+    const newTeam: Team = {
+      name: defaultTeam.name,
+      color: defaultTeam.color,
+      bots: [],
+    };
+    setTeams((prev) => [...prev, newTeam]);
+  };
+
+  const addTestBot = () => {
+    const testParticipantData: TeamParticipantData = {
+      botToken: crypto.randomUUID(),
+      teamColor: "",
+      teamName: INITIAL_TEAM_NAME,
+      test: true,
+    };
+    const updatedTeams = teams().map((t) => {
+      if (t.name === INITIAL_TEAM_NAME) {
+        return {
+          ...t,
+          bots: [...t.bots, testParticipantData],
+        };
+      }
+      return t;
+    });
+    setTeams(updatedTeams);
+  };
+
   return (
     <div class="container pt-4 flex flex-col gap-4">
       <h1>Game setup:</h1>
+      <div class="flex gap-2">
+        <Button size={"sm"} onClick={addTestBot}>
+          Add test bot
+        </Button>
+        <Button size={"sm"} onClick={addTeam}>
+          Add team
+        </Button>
+      </div>
+
       <TeamsContainer teams={teams()} onTeamsChange={setTeams} />
       <Button
         disabled={!readyToStart()}
@@ -108,3 +154,12 @@ const GameSetup: Component = () => {
 };
 
 export default GameSetup;
+
+const getNewTeam = (teams: Team[]) => {
+  const teamsWithoutInitial = teams.filter((t) => t.name !== INITIAL_TEAM_NAME);
+  const awailableTeaams = defaultTeams.filter(
+    (t) => !teamsWithoutInitial.map((t) => t.color).includes(t.color)
+  );
+  if (awailableTeaams.length === 0) return;
+  return awailableTeaams[0];
+};

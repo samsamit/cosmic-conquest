@@ -13,13 +13,16 @@ import {
   ParentComponent,
   Show,
   createEffect,
-  createMemo,
   createSignal,
 } from "solid-js";
+
+export interface TeamParticipantData extends ParticipantData {
+  test?: boolean;
+}
 export interface Team {
   name: string;
   color: string;
-  bots: ParticipantData[];
+  bots: TeamParticipantData[];
 }
 
 const TeamsContainer: Component<{
@@ -86,16 +89,12 @@ const TeamsContainer: Component<{
     props.onTeamsChange(updatedTeams);
   };
 
-  const addTeam = () => {
-    const teamCount = props.teams.length - 1;
-    const defaultTeam = defaultTeams[teamCount];
-    if (!defaultTeam) return;
-    const newTeam: Team = {
-      name: defaultTeam.name,
-      color: defaultTeam.color,
-      bots: [],
-    };
-    props.onTeamsChange([...props.teams, newTeam]);
+  const removeTestParticipant = (botToken: string) => {
+    const updatedTeams = props.teams.map((t) => ({
+      ...t,
+      bots: t.bots.filter((b) => b.botToken !== botToken),
+    }));
+    props.onTeamsChange(updatedTeams);
   };
 
   return (
@@ -106,11 +105,7 @@ const TeamsContainer: Component<{
             team={team}
             onDrop={(e) => handleDrop(e, team.name)}
             actionButton={
-              team.name === INITIAL_TEAM_NAME ? (
-                <Button size={"sm"} onClick={addTeam} class="text-sm h-6">
-                  Add team
-                </Button>
-              ) : (
+              team.name !== INITIAL_TEAM_NAME && (
                 <Button
                   size={"icon"}
                   onClick={() => removeTeam(team.name)}
@@ -127,7 +122,13 @@ const TeamsContainer: Component<{
               fallback={<p class="text-base">No bots...</p>}
             >
               {(bot) => (
-                <BotComponent bot={bot} onDrag={(e) => handleOnDrag(e, bot)} />
+                <BotComponent
+                  bot={bot}
+                  onDrag={(e) => handleOnDrag(e, bot)}
+                  removeTestParticipant={() =>
+                    removeTestParticipant(bot.botToken)
+                  }
+                />
               )}
             </For>
           </TeamComponent>
@@ -138,12 +139,22 @@ const TeamsContainer: Component<{
 };
 
 const BotComponent: Component<{
-  bot: ParticipantData;
+  bot: TeamParticipantData;
+  removeTestParticipant: () => void;
   onDrag: (e: DragEvent) => void;
 }> = (props) => {
   return (
-    <Badge draggable onDragStart={props.onDrag} class="h-6">
+    <Badge draggable onDragStart={props.onDrag} class="h-6 flex gap-2">
       {props.bot.botToken}
+      <Show when={props.bot.test}>
+        <Button
+          class="text-sm h-4 w-4 rounded-full p-0"
+          variant={"ghost"}
+          onClick={props.removeTestParticipant}
+        >
+          <AiTwotoneCloseCircle />
+        </Button>
+      </Show>
     </Badge>
   );
 };
