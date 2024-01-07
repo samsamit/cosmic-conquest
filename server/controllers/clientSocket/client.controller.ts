@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 import { getServerDecorators } from "server.init";
 import { BotData } from "services/bot/bot.handler";
+import { ClientEventSchema } from "./client.communication";
 
 export const clientController = new Elysia()
   .use(getServerDecorators)
@@ -10,6 +11,7 @@ export const clientController = new Elysia()
     }),
   })
   .ws("/client", {
+    body: ClientEventSchema,
     open: (socket) => {
       const connectionToken = socket.data.query["connectionToken"];
       socket.data.clientHandler.addClient(connectionToken, socket.raw);
@@ -23,8 +25,45 @@ export const clientController = new Elysia()
       socket.data.clientHandler.removeClient(connectionToken);
       console.log("client disconnected");
     },
-    message: (socket, message) => {
-      const connectionToken = socket.data.query["connectionToken"];
-      console.log("client sent message", message);
+    message: (socket, payload) => {
+      switch (payload.event) {
+        case "botAction":
+          try {
+            const gameId = socket.data.gameManager.getBotsGameID(
+              payload.botToken
+            );
+            if (!gameId) {
+              socket.send("Bot not in game");
+              return;
+            }
+            const { botToken, action: actionPayload } = payload;
+            switch (actionPayload.action) {
+              case "move":
+                socket.data.gameManager.addAction(gameId, {
+                  botToken,
+                  action: "move",
+                  distance: actionPayload.distance,
+                });
+                break;
+              case "turn":
+                socket.data.gameManager.addAction(gameId, {
+                  botToken,
+                  action: "turn",
+                  direction: actionPayload.direction,
+                });
+                break;
+            }
+            console.log("client bot sent message", actionPayload);
+          } catch (e) {
+            if (e instanceof Error) {
+              console.log(e.message);
+              socket.send(e.message);
+            } else {
+              console.log(e);
+              socket.send("unknown error");
+            }
+          }
+          break;
+      }
     },
   });
