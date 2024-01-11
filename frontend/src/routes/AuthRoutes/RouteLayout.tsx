@@ -53,13 +53,6 @@ const HandleSocketEvents: ParentComponent<{}> = (props) => {
             handleGameEvent(socketData.payload);
             return;
           }
-          case null:
-            socketData.error &&
-              showToast({
-                title: "Something went wrong",
-                description: socketData.error,
-                variant: "destructive",
-              });
         }
       }
     )

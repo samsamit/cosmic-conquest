@@ -1,8 +1,11 @@
-import { Component, For, createMemo } from "solid-js";
+import { Component, For, Show, createMemo } from "solid-js";
 import { Ship } from "@/schemas/gameState.schema";
 import { Badge } from "@/components/ui/badge";
+import { TbPlugConnectedX } from "solid-icons/tb";
 
-const TeamsRow: Component<{ ships: Ship[] }> = (props) => {
+const TeamsRow: Component<{ ships: Ship[]; connectedBots: string[] }> = (
+  props
+) => {
   const teams = createMemo(() =>
     props.ships.reduce((acc, ship) => {
       const team = acc.find((team) => team.name === ship.team);
@@ -33,7 +36,18 @@ const TeamsRow: Component<{ ships: Ship[] }> = (props) => {
 
             <div class="p-2 flex gap-2 flex-wrap">
               <For each={team.ships}>
-                {(ship) => <Badge class="whitespace-nowrap">{ship.name}</Badge>}
+                {(ship) => {
+                  const isConnected =
+                    props.connectedBots.includes(ship.id) || ship.manualControl;
+                  return (
+                    <Badge class={"whitespace-nowrap flex gap-1"}>
+                      {ship.name}
+                      <Show when={!isConnected}>
+                        <TbPlugConnectedX />
+                      </Show>
+                    </Badge>
+                  );
+                }}
               </For>
             </div>
           </div>

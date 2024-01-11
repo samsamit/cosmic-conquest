@@ -4,7 +4,6 @@ import { GameUpdateSchema } from "./gameState.schema";
 const BotsDataSchema = z.object({
   botToken: z.string(),
   gameId: z.string().nullable(),
-  color: z.string().nullable(),
   connectionToken: z.string(),
   name: z.string(),
 });

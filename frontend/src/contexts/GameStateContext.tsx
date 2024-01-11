@@ -1,15 +1,11 @@
-import { Entity } from "@/schemas/gameState.schema";
+import { GameUpdate } from "@/schemas/gameState.schema";
 import { BotData, SocketEvent } from "@/schemas/socket.schama";
 import { createContext, useContext } from "solid-js";
 import { ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
 import { WebSocketStatus } from "solidjs-use";
 export interface GameStateStore {
-  gameData: {
-    entities: Entity[];
-    mapWidth: number;
-    mapHeight: number;
-  } | null;
+  gameData: GameUpdate | null;
   bots: BotData[] | null;
   connection: WebSocketStatus;
   gameId: string | null;
@@ -49,11 +45,7 @@ export const GameStateProvider: ParentComponent = (props) => {
       switch (event) {
         case "update": {
           setGameState({
-            gameData: {
-              entities: data.entities,
-              mapWidth: data.mapWidth,
-              mapHeight: data.mapHeight,
-            },
+            gameData: data,
           });
           break;
         }

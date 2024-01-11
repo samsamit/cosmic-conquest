@@ -9,6 +9,7 @@ const ParticipantSchema = t.Object({
 export type ParticipantData = Static<typeof ParticipantSchema>;
 
 export const startGameSchema = t.Object({
+  connectionToken: t.String(),
   participants: t.Array(ParticipantSchema),
 });
 

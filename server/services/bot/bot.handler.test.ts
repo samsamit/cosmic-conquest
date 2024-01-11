@@ -19,7 +19,6 @@ describe("BotHandler", () => {
       botToken,
       socket,
       gameId: null,
-      color: null,
       connectionToken,
       name: "botName",
     });
@@ -64,14 +63,13 @@ describe("BotHandler", () => {
       null,
       "botName"
     );
-    botHandler.setGameId("gameId", [participant]);
+    botHandler.setGameId("gameId", "token", [participant]);
 
     // Assert
     expect(botHandler.getBot(connectionToken, participant.botToken)).toEqual({
       botToken: participant.botToken,
       socket: {} as AppSocket,
       gameId: "gameId",
-      color: "teamColor",
       connectionToken: "connectionToken",
       name: "botName",
     });

@@ -38,7 +38,7 @@ export const ClientHandler = (): ClientHandler => {
     getClient(connectionToken) {
       return this.clients.get(connectionToken);
     },
-    sendGameState(connectionTokens, gameState) {
+    sendGameState(connectionTokens, gameUpdate) {
       connectionTokens.forEach((token) => {
         const client = this.clients.get(token);
         console.log("client", client);
@@ -46,11 +46,11 @@ export const ClientHandler = (): ClientHandler => {
           return;
         }
         console.log("sending game state to client", client.connectionToken);
-        const { entities, mapHeight, mapWidth } = gameState;
+        const { entities, mapHeight, mapWidth, gameState } = gameUpdate;
         client.socket.send(
           JSON.stringify({
             event: "update",
-            data: { entities, mapHeight, mapWidth },
+            data: { entities, mapHeight, mapWidth, gameState },
           })
         );
       });

@@ -107,8 +107,8 @@ export const createGame = (
       return this;
     },
     addAction(action) {
-      if (this.gameLoopState !== "waitingForActions") {
-        throw new Error("Game has not started yet");
+      if (this.state !== "RUNNING") {
+        throw new Error("Game is currently not running");
       }
       if (this.actionQueue.find((a) => a.botToken === action.botToken)) {
         throw new Error("Bot already sent action");
@@ -119,6 +119,7 @@ export const createGame = (
 
     gameRunner(updateGameStateCallback) {
       if (this.gameLoopTimestamp === null) {
+        console.log("Game loop started");
         this.gameLoopTimestamp = performance.now();
         updateGameStateCallback(this.getUpdate());
       }

@@ -5,6 +5,7 @@ import TeamsContainer, {
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/ui/toast";
 import { INITIAL_TEAM_NAME, defaultTeams } from "@/constants";
+import { useAuthStore } from "@/contexts/AuthContext";
 import { useGameState } from "@/contexts/GameStateContext";
 import { useNavigate } from "@solidjs/router";
 import {
@@ -16,6 +17,7 @@ import {
 } from "solid-js";
 
 const GameSetup: Component = () => {
+  const [authState] = useAuthStore();
   const [gameData, { setGameId }] = useGameState();
   const navigate = useNavigate();
 
@@ -83,6 +85,7 @@ const GameSetup: Component = () => {
   );
 
   const handleStartGame = async () => {
+    if (!authState.connectionToken) return;
     const battleTeams = teams().filter((t) => t.name !== INITIAL_TEAM_NAME);
     const participantData = battleTeams.reduce((acc, t) => {
       const participants: ParticipantData[] = t.bots.map((b) => ({
@@ -94,7 +97,7 @@ const GameSetup: Component = () => {
       }));
       return [...acc, ...participants];
     }, [] as ParticipantData[]);
-    const gameId = await createGame(participantData);
+    const gameId = await createGame(authState.connectionToken, participantData);
     if (!gameId) {
       showToast({
         title: "Could not create game",

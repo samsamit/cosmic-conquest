@@ -14,7 +14,7 @@ export const gameController = new Elysia()
             participants: body.participants,
           });
           console.log("Game created with id: ", gameId);
-          botHandler.setGameId(gameId, body.participants);
+          botHandler.setGameId(gameId, body.connectionToken, body.participants);
           return new Response("Game created", { status: 200 });
         },
         {

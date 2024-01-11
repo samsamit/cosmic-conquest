@@ -8,7 +8,10 @@ export interface ParticipantData {
   manualControl?: boolean;
 }
 
-export const createGame = async (participants: ParticipantData[]) => {
+export const createGame = async (
+  connectionToken: string,
+  participants: ParticipantData[]
+) => {
   const gameId = crypto.randomUUID();
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/${gameId}/create`,
@@ -17,7 +20,7 @@ export const createGame = async (participants: ParticipantData[]) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ participants }),
+      body: JSON.stringify({ connectionToken, participants }),
     }
   );
   if (!response.ok) {

@@ -56,6 +56,7 @@ export type Explosion = z.infer<typeof ExplosionSchema>;
 const EntitySchema = z.union([ShipSchema, ProjectileSchema, ExplosionSchema]);
 export type Entity = z.infer<typeof EntitySchema>;
 export const GameStateSchema = z.union([
+  z.literal("READY"),
   z.literal("RUNNING"),
   z.literal("PAUSED"),
   z.literal("STOPPED"),
