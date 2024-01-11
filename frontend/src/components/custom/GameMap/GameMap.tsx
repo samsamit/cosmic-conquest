@@ -59,7 +59,7 @@ const GameMap: Component<{
       <ValueButton
         onDecrease={() => handleZoom(-5)}
         onIncrease={() => handleZoom(5)}
-        class="absolute bottom-4 right-4"
+        class="absolute top-4 right-4"
       />
     </>
   );

@@ -1,6 +1,10 @@
+import { showToast } from "@/components/ui/toast";
 import { useAuthStore } from "@/contexts/AuthContext";
 import { GameStateProvider, useGameState } from "@/contexts/GameStateContext";
-import { SocketContextProvider, useSocketData } from "@/contexts/SocketContext";
+import {
+  SocketConnectionHandler,
+  useSocketData,
+} from "@/contexts/SocketContext";
 import { Navigate } from "@solidjs/router";
 import {
   ParentComponent,
@@ -20,18 +24,18 @@ const RouteGuard: ParentComponent<{}> = (props) => {
   return (
     <Show when={authState.connectionToken}>
       {(token) => (
-        <SocketContextProvider connectionToken={token()}>
+        <SocketConnectionHandler connectionToken={token()}>
           <GameStateProvider>
             <HandleSocketEvents>{props.children}</HandleSocketEvents>
           </GameStateProvider>
-        </SocketContextProvider>
+        </SocketConnectionHandler>
       )}
     </Show>
   );
 };
 
 const HandleSocketEvents: ParentComponent<{}> = (props) => {
-  const socketData = useSocketData();
+  const [socketData] = useSocketData();
   const [, { handleGameEvent }] = useGameState();
   const [, { updateInfo }] = useAuthStore();
 
@@ -50,7 +54,12 @@ const HandleSocketEvents: ParentComponent<{}> = (props) => {
             return;
           }
           case null:
-            socketData.error && alert(socketData.error);
+            socketData.error &&
+              showToast({
+                title: "Something went wrong",
+                description: socketData.error,
+                variant: "destructive",
+              });
         }
       }
     )

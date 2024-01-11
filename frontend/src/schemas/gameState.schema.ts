@@ -21,6 +21,7 @@ export type Direction = z.infer<typeof DirectionSchema>;
 
 const ShipSchema = z.object({
   id: z.string(),
+  name: z.string(),
   position: PositionSchema,
   direction: DirectionSchema,
   hitboxRadius: z.number(),

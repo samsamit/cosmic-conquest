@@ -1,6 +1,5 @@
 import Elysia, { t } from "elysia";
 import { getServerDecorators } from "server.init";
-import { BotData } from "services/bot/bot.handler";
 import { ClientEventSchema } from "./client.communication";
 
 export const clientController = new Elysia()
@@ -27,40 +26,32 @@ export const clientController = new Elysia()
     },
     message: (socket, payload) => {
       switch (payload.event) {
-        case "botAction":
+        case "manualAction":
           try {
-            const gameId = socket.data.gameManager.getBotsGameID(
-              payload.botToken
-            );
-            if (!gameId) {
-              socket.send("Bot not in game");
-              return;
-            }
-            const { botToken, action: actionPayload } = payload;
+            const { gameId, shipId, action: actionPayload } = payload;
             switch (actionPayload.action) {
               case "move":
                 socket.data.gameManager.addAction(gameId, {
-                  botToken,
+                  botToken: shipId,
                   action: "move",
                   distance: actionPayload.distance,
                 });
                 break;
               case "turn":
                 socket.data.gameManager.addAction(gameId, {
-                  botToken,
+                  botToken: shipId,
                   action: "turn",
                   direction: actionPayload.direction,
                 });
                 break;
             }
-            console.log("client bot sent message", actionPayload);
           } catch (e) {
             if (e instanceof Error) {
               console.log(e.message);
-              socket.send(e.message);
+              socket.send({ event: "error", message: e.message });
             } else {
               console.log(e);
-              socket.send("unknown error");
+              socket.send({ event: "error", message: "unknown error" });
             }
           }
           break;

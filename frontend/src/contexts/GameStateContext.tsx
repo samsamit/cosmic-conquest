@@ -20,9 +20,12 @@ interface GameStateFunctions {
   handleGameEvent: (
     eventData: Exclude<
       SocketEvent,
-      {
-        event: "connectionInfo";
-      }
+      | {
+          event: "connectionInfo";
+        }
+      | {
+          event: "error";
+        }
     >
   ) => void;
 }

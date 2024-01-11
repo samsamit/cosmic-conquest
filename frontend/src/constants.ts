@@ -1,14 +1,12 @@
 export const defaultTeamColors: string[] = [
-  "#FF5733",
-  "#33FF57",
-  "#5733FF",
-  "#FF33A1",
-  "#33A1FF",
-  "#A1FF33",
-  "#FF3366",
-  "#3366FF",
-  "#FF6633",
-  "#6633FF",
+  "hsl(4, 100%, 57%)",
+  "hsl(100, 100%, 37%)",
+  "hsl(248, 100%, 57%)",
+  "hsl(324, 100%, 57%)",
+  "hsl(204, 100%, 67%)",
+  "hsl(54, 100%, 57%)",
+  "hsl(16, 100%, 57%)",
+  "hsl(264, 100%, 57%)",
 ] as const;
 
 export const defaultTeamNames: string[] = [
@@ -20,8 +18,6 @@ export const defaultTeamNames: string[] = [
   "Yellow",
   "Orange",
   "Purple",
-  "Orange",
-  "Dark Blue",
 ] as const;
 
 export const defaultTeams = defaultTeamNames.map((name, index) => ({

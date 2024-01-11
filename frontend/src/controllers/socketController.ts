@@ -1,53 +1,53 @@
-import { SocketEvent, SocketEventSchema } from "@/schemas/socket.schama";
+import { showToast } from "@/components/ui/toast";
 import { useNavigate } from "@solidjs/router";
-import { createComputed } from "solid-js";
-import { createStore } from "solid-js/store";
-import { WebSocketStatus, useWebSocket } from "solidjs-use";
+import { createMemo, createSignal } from "solid-js";
+import { useWebSocket } from "solidjs-use";
 
-export interface SocketData {
-  connectionState: WebSocketStatus;
-  payload: SocketEvent | null;
-  error?: string;
-}
-
-export const createSocketConnection = (connectionToken: string): SocketData => {
+export const createSocketConnection = (connectionToken: string) => {
   const navigate = useNavigate();
-  const [socketData, setSocketData] = createStore<SocketData>({
-    connectionState: "CLOSED",
-    payload: null,
-  });
-  const { status, data } = useWebSocket<string>(
+  const [lastMessageTimestamp, setLastMessageTimestamp] = createSignal(0);
+  const { status, data, send } = useWebSocket<string>(
     `${import.meta.env.VITE_WEBSOCKET_PATH}?connectionToken=${connectionToken}`,
     {
       autoReconnect: {
         retries: 3,
         delay: 1000,
         onFailed() {
-          alert("Failed to connect WebSocket after 3 retries");
+          showToast({
+            title: "Failed to connect WebSocket",
+            description: "Retrying...",
+            variant: "destructive",
+          });
           navigate("/");
         },
       },
+      onMessage: () => {
+        setLastMessageTimestamp(performance.now());
+      },
     }
   );
-  createComputed(() => {
-    const socketData = data();
-    if (!socketData) return;
-    const parsedData = SocketEventSchema.safeParse(JSON.parse(socketData));
 
-    if (parsedData.success) {
-      console.log("Got socket event: ", parsedData.data.event);
-      console.log(parsedData.data);
-      setSocketData({
-        connectionState: status(),
-        payload: parsedData.data,
-      });
+  const sendData = (data: string) => {
+    console.log("sending data", data);
+    if (status() === "OPEN") {
+      const res = send(data);
+      console.log("send result", res);
     } else {
-      setSocketData({
-        connectionState: status(),
-        payload: null,
-        error: parsedData.error.message,
+      showToast({
+        title: "Failed to send data",
+        description: "WebSocket is not connected",
+        variant: "destructive",
       });
     }
+  };
+
+  const connection = createMemo(() => {
+    lastMessageTimestamp();
+    return {
+      data: data(),
+      status: status(),
+    };
   });
-  return socketData;
+
+  return { connection, sendData };
 };

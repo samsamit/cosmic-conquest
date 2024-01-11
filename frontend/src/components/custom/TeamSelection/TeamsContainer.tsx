@@ -26,6 +26,8 @@ import {
   animals,
   uniqueNamesGenerator,
 } from "unique-names-generator";
+import Text from "../typography/Text";
+import { showToast } from "@/components/ui/toast";
 
 export interface Team {
   name: string;
@@ -114,10 +116,15 @@ const TeamsContainer: Component<{
     }));
     props.onTeamsChange(updatedTeams);
   };
+
   const addTeam = () => {
     const defaultTeam = getNewTeam(props.teams);
     if (!defaultTeam) {
-      alert("No more teams available");
+      showToast({
+        title: "No more teams available",
+        description: "This is the maximum number of teams allowed",
+        variant: "destructive",
+      });
       return;
     }
     const newTeam: Team = {
@@ -128,19 +135,21 @@ const TeamsContainer: Component<{
     props.onTeamsChange([...props.teams, newTeam]);
   };
 
-  const addTestBot = () => {
-    const testParticipantData: ParticipantData = {
-      botToken: crypto.randomUUID(),
-      name: getRandomParticipantName(),
-      teamColor: "",
-      teamName: INITIAL_TEAM_NAME,
-      manualControl: true,
-    };
+  const addTestBot = (targetTeam: string) => {
     const updatedTeams = props.teams.map((t) => {
-      if (t.name === INITIAL_TEAM_NAME) {
+      if (t.name === targetTeam) {
         return {
           ...t,
-          bots: [...t.bots, testParticipantData],
+          bots: [
+            ...t.bots,
+            {
+              botToken: crypto.randomUUID(),
+              name: getRandomParticipantName(),
+              teamColor: t.color,
+              teamName: t.name,
+              manualControl: true,
+            },
+          ],
         };
       }
       return t;
@@ -156,30 +165,44 @@ const TeamsContainer: Component<{
             team={team}
             onDrop={(e) => handleDrop(e, team.name)}
             actionButton={
-              team.name === INITIAL_TEAM_NAME ? (
+              <>
                 <div class="flex gap-2">
-                  <Button size={"sm"} class="h-6 text-sm" onClick={addTestBot}>
-                    Add test bot
-                  </Button>
-                  <Button size={"sm"} class="h-6 text-sm" onClick={addTeam}>
-                    Add team
-                  </Button>
+                  <Show when={team.name === INITIAL_TEAM_NAME}>
+                    <Button size={"sm"} class="h-6 text-sm" onClick={addTeam}>
+                      Add team
+                    </Button>
+                  </Show>
+
+                  <Show when={team.name !== INITIAL_TEAM_NAME}>
+                    <Button
+                      size={"sm"}
+                      class="h-6 text-sm"
+                      onClick={() => addTestBot(team.name)}
+                    >
+                      Add test bot
+                    </Button>
+                    <Button
+                      size={"icon"}
+                      onClick={() => removeTeam(team.name)}
+                      class="text-sm h-6 w-6"
+                      variant={"ghost"}
+                    >
+                      <AiTwotoneCloseCircle />
+                    </Button>
+                  </Show>
                 </div>
-              ) : (
-                <Button
-                  size={"icon"}
-                  onClick={() => removeTeam(team.name)}
-                  class="text-sm h-6 w-6"
-                  variant={"ghost"}
-                >
-                  <AiTwotoneCloseCircle />
-                </Button>
-              )
+              </>
             }
           >
             <For
               each={team.bots}
-              fallback={<p class="text-base">No bots...</p>}
+              fallback={
+                team.name === INITIAL_TEAM_NAME ? (
+                  <Text>No bots...</Text>
+                ) : (
+                  <Text>Add bots by dragging...</Text>
+                )
+              }
             >
               {(bot) => (
                 <BotComponent
@@ -290,5 +313,5 @@ const getRandomParticipantName = () => {
     length: 2,
     separator: " test ",
   });
-  return name;
+  return name.charAt(0).toUpperCase() + name.slice(1);
 };

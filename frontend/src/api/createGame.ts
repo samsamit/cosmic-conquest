@@ -1,3 +1,5 @@
+import { showToast } from "@/components/ui/toast";
+
 export interface ParticipantData {
   botToken: string;
   name: string;
@@ -20,7 +22,11 @@ export const createGame = async (participants: ParticipantData[]) => {
   );
   if (!response.ok) {
     const error = await response.text();
-    alert(error);
+    showToast({
+      title: "Something went wrong",
+      description: error,
+      variant: "destructive",
+    });
     return null;
   }
   return gameId;

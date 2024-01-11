@@ -3,7 +3,8 @@ import TeamsContainer, {
   Team,
 } from "@/components/custom/TeamSelection/TeamsContainer";
 import { Button } from "@/components/ui/button";
-import { INITIAL_TEAM_NAME } from "@/constants";
+import { showToast } from "@/components/ui/toast";
+import { INITIAL_TEAM_NAME, defaultTeams } from "@/constants";
 import { useGameState } from "@/contexts/GameStateContext";
 import { useNavigate } from "@solidjs/router";
 import {
@@ -31,6 +32,8 @@ const GameSetup: Component = () => {
           name: b.name,
         })) ?? [],
     },
+    { ...defaultTeams[0], bots: [] },
+    { ...defaultTeams[1], bots: [] },
   ]);
 
   createComputed(
@@ -93,7 +96,11 @@ const GameSetup: Component = () => {
     }, [] as ParticipantData[]);
     const gameId = await createGame(participantData);
     if (!gameId) {
-      alert("Something went wrong");
+      showToast({
+        title: "Could not create game",
+        description: "Something went wrong, please try again",
+        variant: "destructive",
+      });
       return;
     }
     setGameId(gameId);

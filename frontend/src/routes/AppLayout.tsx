@@ -2,6 +2,7 @@ import { ParentComponent, Show, createEffect } from "solid-js";
 import { useAuthStore } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
 import { A, useMatch, useNavigate } from "@solidjs/router";
+import ConnectionIndicator from "@/components/custom/navbar/ConnectionIndicator";
 
 const AppLayout: ParentComponent = (props) => {
   const [authState, { logout }] = useAuthStore();
@@ -21,6 +22,7 @@ const AppLayout: ParentComponent = (props) => {
           <A href="/">
             <h1>Cosmic conquest</h1>
           </A>
+          <ConnectionIndicator />
         </div>
         <Show when={authState.isAuthenticated}>
           <Button size={"sm"} variant={"outline"} onClick={logout}>

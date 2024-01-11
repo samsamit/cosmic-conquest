@@ -10,6 +10,7 @@ import {
   ColorModeScript,
   localStorageManager,
 } from "@kobalte/core";
+import { Toaster } from "./components/ui/toast";
 
 const root = document.getElementById("root");
 render(() => <ColorModeScript storageType={"localStorage"} />, document.head);
@@ -19,6 +20,7 @@ render(
       <Contexts>
         <Router>{routes}</Router>
       </Contexts>
+      <Toaster />
     </ColorModeProvider>
   ),
   root!

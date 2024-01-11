@@ -29,10 +29,16 @@ const ConnectionEventSchema = z.object({
   }),
 });
 
+const ErrorEventSchema = z.object({
+  event: z.literal("error"),
+  message: z.string(),
+});
+
 export const SocketEventSchema = z.union([
   BotsEventSchema,
   UpdateEventSchema,
   ConnectionEventSchema,
+  ErrorEventSchema,
 ]);
 
 export type SocketEvent = z.infer<typeof SocketEventSchema>;
