@@ -1,5 +1,5 @@
 import { showToast } from "@/components/ui/toast";
-import { GameStateSchema } from "@/schemas/gameState.schema";
+import { GameUpdateSchema } from "@/schemas/gameState.schema";
 import { useNavigate } from "@solidjs/router";
 
 export const fetchGameUpdate = async (gameId: string) => {
@@ -17,7 +17,7 @@ export const fetchGameUpdate = async (gameId: string) => {
     navigate("/");
     return null;
   }
-  const gameUpdate = await GameStateSchema.safeParseAsync(
+  const gameUpdate = await GameUpdateSchema.safeParseAsync(
     await response.json()
   );
   if (!gameUpdate.success) {

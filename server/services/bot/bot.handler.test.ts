@@ -12,7 +12,7 @@ describe("BotHandler", () => {
     const socket = {} as AppSocket;
 
     // Act
-    botHandler.addBot(connectionToken, botToken, socket, null);
+    botHandler.addBot(connectionToken, botToken, socket, null, "botName");
 
     // Assert
     expect(botHandler.getBot(connectionToken, botToken)).toEqual({
@@ -21,11 +21,12 @@ describe("BotHandler", () => {
       gameId: null,
       color: null,
       connectionToken,
+      name: "botName",
     });
 
     // Adding another bot should throw error
     expect(() =>
-      botHandler.addBot(connectionToken, botToken, socket, null)
+      botHandler.addBot(connectionToken, botToken, socket, null, "botName")
     ).toThrow();
   });
 
@@ -37,7 +38,7 @@ describe("BotHandler", () => {
     const socket = {} as AppSocket;
 
     // Act
-    botHandler.addBot(connectionToken, botToken, socket, null);
+    botHandler.addBot(connectionToken, botToken, socket, null, "botName");
     botHandler.removeBot(connectionToken, botToken);
 
     // Assert
@@ -51,6 +52,7 @@ describe("BotHandler", () => {
       botToken: "botToken",
       teamName: "teamName",
       teamColor: "teamColor",
+      name: "name",
     };
     const botHandler = BotHandler();
 
@@ -59,7 +61,8 @@ describe("BotHandler", () => {
       connectionToken,
       participant.botToken,
       {} as AppSocket,
-      null
+      null,
+      "botName"
     );
     botHandler.setGameId("gameId", [participant]);
 
@@ -69,7 +72,8 @@ describe("BotHandler", () => {
       socket: {} as AppSocket,
       gameId: "gameId",
       color: "teamColor",
-      connectionToken,
+      connectionToken: "connectionToken",
+      name: "botName",
     });
   });
 });

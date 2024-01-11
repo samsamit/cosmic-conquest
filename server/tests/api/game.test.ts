@@ -13,11 +13,13 @@ describe("gameController", () => {
           botToken: "1",
           teamColor: "red",
           teamName: "red team",
+          name: "red bot",
         },
         {
           botToken: "2",
           teamColor: "blue",
           teamName: "blue team",
+          name: "blue bot",
         },
       ];
       const response = await testApi.game["1"].create.post({

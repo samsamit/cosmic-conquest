@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GameStateSchema } from "./gameState.schema";
+import { GameUpdateSchema } from "./gameState.schema";
 
 const BotsDataSchema = z.object({
   botToken: z.string(),
@@ -18,7 +18,7 @@ const BotsEventSchema = z.object({
 
 const UpdateEventSchema = z.object({
   event: z.literal("update"),
-  data: GameStateSchema,
+  data: GameUpdateSchema,
 });
 
 const ConnectionEventSchema = z.object({

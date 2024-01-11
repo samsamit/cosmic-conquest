@@ -1,6 +1,6 @@
 import { showToast } from "@/components/ui/toast";
 import { useNavigate } from "@solidjs/router";
-import { createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal, untrack } from "solid-js";
 import { useWebSocket } from "solidjs-use";
 
 export const createSocketConnection = (connectionToken: string) => {
@@ -43,9 +43,11 @@ export const createSocketConnection = (connectionToken: string) => {
 
   const connection = createMemo(() => {
     lastMessageTimestamp();
+    const socketData = untrack(() => data());
+    const socketStatus = untrack(() => status());
     return {
-      data: data(),
-      status: status(),
+      data: socketData,
+      status: socketStatus,
     };
   });
 

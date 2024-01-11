@@ -1,6 +1,5 @@
 import { Elysia } from "elysia";
 import { setGameStateSchema, startGameSchema } from "./game.schema";
-import { GameState } from "@domain/models/game/game.model";
 import { getServerDecorators } from "server.init";
 
 export const gameController = new Elysia()
@@ -28,13 +27,13 @@ export const gameController = new Elysia()
           let game = gameManager.get(gameId);
           switch (body.state) {
             case "START":
-              game = game.setState(GameState.RUNNING);
+              game = game.setState("RUNNING");
               break;
             case "PAUSE":
-              game = game.setState(GameState.PAUSED);
+              game = game.setState("PAUSED");
               break;
             case "STOP":
-              game = game.setState(GameState.STOPPED);
+              game = game.setState("STOPPED");
               break;
             default:
               return new Response("Invalid state", { status: 400 });

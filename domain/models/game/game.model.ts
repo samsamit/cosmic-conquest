@@ -15,12 +15,7 @@ import {
   getGameMaps,
 } from "../../logic/mapGeneration/getGameMaps";
 
-export enum GameState {
-  READY,
-  RUNNING,
-  PAUSED,
-  STOPPED,
-}
+export type GameState = "READY" | "RUNNING" | "PAUSED" | "STOPPED";
 
 type GameLoopState = "waitingForActions" | "runActions" | "render";
 export interface GameData {
@@ -36,6 +31,7 @@ export interface GameData {
 
 export interface GameUpdate {
   id: string;
+  gameState: GameState;
   entities: EntityData[];
   mapWidth: number;
   mapHeight: number;
@@ -101,36 +97,34 @@ export const createGame = (
     ...gameData,
     actionQueue: [],
     entities,
-    state: GameState.READY,
+    state: "READY",
     settings: gameSettings,
     gameLoopState: "waitingForActions",
     gameLoopTimestamp: null,
     setState(state) {
       this.state = state;
-      console.log(`Game ${this.id} state set to ${GameState[state]}`);
+      console.log(`Game ${this.id} state set to ${state}`);
       return this;
     },
     addAction(action) {
+      if (this.gameLoopState !== "waitingForActions") {
+        throw new Error("Game has not started yet");
+      }
       if (this.actionQueue.find((a) => a.botToken === action.botToken)) {
         throw new Error("Bot already sent action");
       }
       this.actionQueue.push(action);
       return this;
     },
+
     gameRunner(updateGameStateCallback) {
       if (this.gameLoopTimestamp === null) {
         this.gameLoopTimestamp = performance.now();
-        const gameMaps = getGameMaps(this.entities, this.settings);
-        updateGameStateCallback({
-          id: this.id,
-          entities: getEntitiesData(this.entities),
-          mapHeight: this.settings.mapHeight,
-          mapWidth: this.settings.mapWidth,
-          teamMaps: gameMaps.teamMaps,
-        });
+        updateGameStateCallback(this.getUpdate());
       }
 
       const elapsedTime = performance.now() - this.gameLoopTimestamp;
+      console.log("actions: ", this.actionQueue.length);
       switch (this.gameLoopState) {
         case "waitingForActions": {
           if (
@@ -172,14 +166,7 @@ export const createGame = (
         case "render": {
           if (elapsedTime > this.settings.renderWaitTime) {
             this.gameLoopTimestamp = performance.now();
-            const gameMaps = getGameMaps(this.entities, this.settings);
-            updateGameStateCallback({
-              id: this.id,
-              entities: getEntitiesData(this.entities),
-              mapHeight: this.settings.mapHeight,
-              mapWidth: this.settings.mapWidth,
-              teamMaps: gameMaps.teamMaps,
-            });
+            updateGameStateCallback(this.getUpdate());
             this.gameLoopState = "waitingForActions";
           }
           break;
@@ -190,6 +177,7 @@ export const createGame = (
       const gameMaps = getGameMaps(this.entities, this.settings);
       return {
         id: this.id,
+        gameState: this.state,
         entities: getEntitiesData(this.entities),
         mapHeight: this.settings.mapHeight,
         mapWidth: this.settings.mapWidth,

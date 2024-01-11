@@ -1,7 +1,6 @@
 import {
   Action,
   Game,
-  GameState,
   GameUpdate,
   createGame,
 } from "../models/game/game.model";
@@ -67,7 +66,7 @@ const GameManager = () => {
       this.gameLoopInterval = setInterval(() => {
         for (const game of this.games.values()) {
           switch (game.state) {
-            case GameState.RUNNING:
+            case "RUNNING":
               game.gameRunner(updateGameStateCallback);
               return;
             default:
