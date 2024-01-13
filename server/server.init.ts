@@ -1,25 +1,25 @@
-import GameManager from "@domain/gameManager";
-import Elysia from "elysia";
-import { BotHandler } from "services/bot/bot.handler";
-import { ClientHandler } from "services/client/client.handler";
+import GameManager from "@domain/gameManager"
+import Elysia from "elysia"
+import { BotHandler } from "services/bot/bot.handler"
+import { ClientHandler } from "services/client/client.handler"
 
 export function getServerDecorators(app: Elysia) {
-  const gameManager = GameManager();
-  const clientHandler = ClientHandler();
-  const botHandler = BotHandler();
+  const gameManager = GameManager()
+  const clientHandler = ClientHandler()
+  const botHandler = BotHandler()
 
-  gameManager.runGameLoop((update) => {
-    const { id, teamMaps } = update;
-    botHandler.sendGameState(id, teamMaps);
+  gameManager.startGameLoop((update) => {
+    const { id, teamMaps } = update
+    botHandler.sendGameState(id, teamMaps)
 
     const connectionTokensFromGame =
-      botHandler.getConnectionTokensFromBotsInGame(id);
+      botHandler.getConnectionTokensFromBotsInGame(id)
 
-    console.log("connectionTokensFromGame", connectionTokensFromGame);
-    clientHandler.sendGameState(connectionTokensFromGame, update);
-  });
+    console.log("connectionTokensFromGame", connectionTokensFromGame)
+    clientHandler.sendGameState(connectionTokensFromGame, update)
+  })
   return app
     .decorate("gameManager", gameManager)
     .decorate("clientHandler", clientHandler)
-    .decorate("botHandler", botHandler);
+    .decorate("botHandler", botHandler)
 }
